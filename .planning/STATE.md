@@ -11,29 +11,29 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 ## Current Position
 
 Phase: 2 of 6 (Exercise Pool Configuration)
-Plan: 1 of 1 in current phase
+Plan: 2 of 2 in current phase
 Status: Phase complete
-Last activity: 2026-02-08 — Completed 02-01-PLAN.md (Equipment Configuration & Pool Assembly)
+Last activity: 2026-02-08 — Completed 02-02-PLAN.md (Config-Driven Engine Integration)
 
 Progress: [████████████░░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 3 min
-- Total execution time: 0.15 hours
+- Total plans completed: 4
+- Average duration: 3.5 min
+- Total execution time: 0.23 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-core-rotation-engine | 2/2 | 6 min | 3 min |
-| 02-exercise-pool-configuration | 1/1 | 3 min | 3 min |
+| 02-exercise-pool-configuration | 2/2 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 01-02 (4min), 02-01 (3min)
-- Trend: Consistent velocity
+- Last 5 plans: 01-01 (2min), 01-02 (4min), 02-01 (3min), 02-02 (4min)
+- Trend: Consistent velocity (3-4 min per plan)
 
 *Updated after each plan completion*
 
@@ -60,6 +60,10 @@ Recent decisions affecting current work:
 - Bodyweight exercises in FULL_EXERCISE_DATABASE match DEFAULT_POOL — backward compatibility preserved (02-01)
 - Partial config support with missing keys treated as false — flexible equipment declaration (02-01)
 - Pool assembly never returns empty pool — bodyweight always included, DEFAULT_POOL fallback (02-01)
+- Config-driven mode via null pool parameter — backward compatible with Phase 1 explicit pool tests (02-02)
+- Double-hash tracking (configPoolHash + poolHash) — separates config change detection from user edit detection (02-02)
+- pool.json regeneration only on config change — preserves user edits when configuration.json unchanged (02-02)
+- pool.json pretty-printed with 2-space indent — human-readable for transparency and manual editing (02-02)
 
 ### Pending Todos
 
@@ -76,9 +80,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 02-01-PLAN.md - Equipment configuration & pool assembly
-Resume file: Phase 02 complete — ready for Phase 03
+Stopped at: Completed 02-02-PLAN.md - Config-driven engine integration with pool.json persistence
+Resume file: Phase 02 complete — ready for Phase 03 (Statusline Provider)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-08 after completing 02-01-PLAN.md*
+*Last updated: 2026-02-08 after completing 02-02-PLAN.md*
