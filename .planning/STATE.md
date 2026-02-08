@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 ## Current Position
 
-Phase: 2 of 6 (Exercise Pool Configuration)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-08 — Completed 02-02-PLAN.md (Config-Driven Engine Integration)
+Phase: 3 of 6 (Statusline Provider)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-08 — Completed 03-01-PLAN.md (Statusline Library Modules)
 
-Progress: [████████████░░░░░░] 50%
+Progress: [█████████████░░░░░] 55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 3.5 min
+- Total plans completed: 5
+- Average duration: 2.8 min
 - Total execution time: 0.23 hours
 
 **By Phase:**
@@ -30,10 +30,11 @@ Progress: [████████████░░░░░░] 50%
 |-------|-------|-------|----------|
 | 01-core-rotation-engine | 2/2 | 6 min | 3 min |
 | 02-exercise-pool-configuration | 2/2 | 7 min | 3.5 min |
+| 03-statusline-provider | 1/2 | 1 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 01-02 (4min), 02-01 (3min), 02-02 (4min)
-- Trend: Consistent velocity (3-4 min per plan)
+- Last 5 plans: 01-02 (4min), 02-01 (3min), 02-02 (4min), 03-01 (1min)
+- Trend: Accelerating velocity (recent TDD plan completed in 1 min)
 
 *Updated after each plan completion*
 
@@ -64,6 +65,10 @@ Recent decisions affecting current work:
 - Double-hash tracking (configPoolHash + poolHash) — separates config change detection from user edit detection (02-02)
 - pool.json regeneration only on config change — preserves user edits when configuration.json unchanged (02-02)
 - pool.json pretty-printed with 2-space indent — human-readable for transparency and manual editing (02-02)
+- Process detection uses MEDIUM confidence heuristic — positive tokens = processing, requires empirical validation (03-01)
+- formatExercise decoupled from engine types — accepts primitives (name, reps) for single responsibility (03-01)
+- Explicit null AND undefined checks in detection — zero tokens semantically different from null (03-01)
+- Zero tokens means "not processing" — session started but no Claude activity yet (03-01)
 
 ### Pending Todos
 
@@ -72,7 +77,7 @@ None yet.
 ### Blockers/Concerns
 
 **Phase 3 (Statusline Provider):**
-- Process detection heuristic has LOW confidence — stdin JSON schema doesn't expose "is processing" flag explicitly. Will require empirical validation with real Claude Code sessions to tune threshold.
+- Process detection heuristic has MEDIUM confidence — positive token counts indicate processing, but edge cases exist (cooldown immediately after processing). Requires empirical validation in 03-02 checkpoint with real Claude Code sessions.
 
 **Phase 4 (GSD Coexistence):**
 - Multi-instance state conflicts if user runs multiple Claude Code sessions simultaneously. Atomic write-rename mitigates but concurrent read-modify-write remains edge case.
@@ -80,9 +85,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 02-02-PLAN.md - Config-driven engine integration with pool.json persistence
-Resume file: Phase 02 complete — ready for Phase 03 (Statusline Provider)
+Stopped at: Completed 03-01-PLAN.md - Statusline library modules (parseStdin, isProcessing, formatExercise)
+Resume file: .planning/phases/03-statusline-provider/03-02-PLAN.md (next: Statusline Integration)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-08 after completing 02-02-PLAN.md*
+*Last updated: 2026-02-08 after completing 03-01-PLAN.md*
