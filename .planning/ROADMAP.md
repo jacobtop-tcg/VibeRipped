@@ -35,10 +35,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Exercise prompts use crisp command format with zero motivational language
   5. State file survives process crashes without corruption and recovers gracefully from corruption
 
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: TBD during plan-phase
+- [ ] 01-01-PLAN.md — Project scaffold, exercise pool module, state persistence module
+- [ ] 01-02-PLAN.md — Rotation engine with cooldown enforcement (TDD)
 
 ### Phase 2: Exercise Pool Configuration
 **Goal**: Users can declare available equipment and system assembles a bounded, transparent exercise pool from bodyweight plus matching equipment exercises
@@ -140,7 +141,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Rotation Engine | 0/? | Not started | - |
+| 1. Core Rotation Engine | 0/2 | Planned | - |
 | 2. Exercise Pool Configuration | 0/? | Not started | - |
 | 3. Statusline Provider | 0/? | Not started | - |
 | 4. GSD Coexistence | 0/? | Not started | - |
