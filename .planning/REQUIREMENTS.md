@@ -85,36 +85,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ROTN-01 | — | Pending |
-| ROTN-02 | — | Pending |
-| ROTN-03 | — | Pending |
-| ROTN-04 | — | Pending |
-| ROTN-05 | — | Pending |
-| ROTN-06 | — | Pending |
-| ROTN-07 | — | Pending |
-| ROTN-08 | — | Pending |
-| STAT-01 | — | Pending |
-| STAT-02 | — | Pending |
-| STAT-03 | — | Pending |
-| STAT-04 | — | Pending |
-| COEX-01 | — | Pending |
-| COEX-02 | — | Pending |
-| CONF-01 | — | Pending |
-| CONF-02 | — | Pending |
-| CONF-03 | — | Pending |
-| CONF-04 | — | Pending |
-| CONF-05 | — | Pending |
-| CONF-06 | — | Pending |
-| CONF-07 | — | Pending |
-| STMG-01 | — | Pending |
-| STMG-02 | — | Pending |
-| STMG-03 | — | Pending |
+| ROTN-01 | Phase 1 | Pending |
+| ROTN-02 | Phase 2 | Pending |
+| ROTN-03 | Phase 1 | Pending |
+| ROTN-04 | Phase 1 | Pending |
+| ROTN-05 | Phase 1 | Pending |
+| ROTN-06 | Phase 2 | Pending |
+| ROTN-07 | Phase 6 | Pending |
+| ROTN-08 | Phase 6 | Pending |
+| STAT-01 | Phase 3 | Pending |
+| STAT-02 | Phase 3 | Pending |
+| STAT-03 | Phase 3 | Pending |
+| STAT-04 | Phase 3 | Pending |
+| COEX-01 | Phase 4 | Pending |
+| COEX-02 | Phase 4 | Pending |
+| CONF-01 | Phase 2 | Pending |
+| CONF-02 | Phase 2 | Pending |
+| CONF-03 | Phase 5 | Pending |
+| CONF-04 | Phase 5 | Pending |
+| CONF-05 | Phase 5 | Pending |
+| CONF-06 | Phase 6 | Pending |
+| CONF-07 | Phase 6 | Pending |
+| STMG-01 | Phase 1 | Pending |
+| STMG-02 | Phase 1 | Pending |
+| STMG-03 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24
+- Mapped to phases: 24
+- Unmapped: 0
+
+**Coverage: 100%** — All v1 requirements mapped to phases.
 
 ---
 *Requirements defined: 2026-02-08*
-*Last updated: 2026-02-08 after initial definition*
+*Last updated: 2026-02-08 after roadmap creation*
