@@ -1,0 +1,20 @@
+{
+  "name": "viberipped",
+  "version": "0.1.0",
+  "description": "Deterministic micro-exercise rotation engine for Claude Code",
+  "main": "engine.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT",
+  "keywords": [
+    "exercise",
+    "rotation",
+    "productivity",
+    "claude-code"
+  ],
+  "dependencies": {
+    "write-file-atomic": "^7.0.0"
+  }
+}
