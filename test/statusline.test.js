@@ -109,3 +109,122 @@ describe('formatExercise', () => {
     assert.strictEqual(ANSI.bold, '\x1b[1m');
   });
 });
+
+// Integration tests for statusline.js entry point
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+describe('statusline.js integration', () => {
+  let tmpDir;
+
+  // Create isolated state directory before each test
+  function createTmpStateDir() {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viberipped-test-'));
+    return tmpDir;
+  }
+
+  // Clean up temp directory after each test
+  function cleanupTmpStateDir() {
+    if (tmpDir) {
+      try {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  test('outputs ANSI-formatted exercise when valid processing JSON piped to stdin', () => {
+    const tmpHome = createTmpStateDir();
+    const input = JSON.stringify({
+      context_window: {
+        current_usage: {
+          input_tokens: 500,
+          cache_read_input_tokens: 0
+        }
+      }
+    });
+
+    try {
+      const result = execSync(
+        `echo '${input}' | node ${path.join(__dirname, '..', 'statusline.js')}`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' }
+        }
+      );
+
+      // Should contain ANSI codes (cyan bold) and exercise format
+      assert.match(result, /\x1b\[36m\x1b\[1m/); // cyan bold ANSI codes
+      assert.match(result, / x\d+/); // " x{reps}" format
+      assert.match(result, /\x1b\[0m/); // reset code
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+
+  test('outputs empty when non-processing JSON (current_usage: null) piped to stdin', () => {
+    const tmpHome = createTmpStateDir();
+    const input = JSON.stringify({
+      context_window: {
+        current_usage: null
+      }
+    });
+
+    try {
+      const result = execSync(
+        `echo '${input}' | node ${path.join(__dirname, '..', 'statusline.js')}`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' }
+        }
+      );
+
+      assert.strictEqual(result, '');
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+
+  test('outputs empty and exits 0 when invalid JSON piped to stdin', () => {
+    const tmpHome = createTmpStateDir();
+
+    try {
+      const result = execSync(
+        `echo 'invalid json' | node ${path.join(__dirname, '..', 'statusline.js')}; echo $?`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' },
+          shell: '/bin/bash'
+        }
+      );
+
+      // Should contain exit code 0
+      assert.match(result, /0/);
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+
+  test('outputs empty and exits 0 when empty stdin', () => {
+    const tmpHome = createTmpStateDir();
+
+    try {
+      const result = execSync(
+        `echo '' | node ${path.join(__dirname, '..', 'statusline.js')}; echo $?`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' },
+          shell: '/bin/bash'
+        }
+      );
+
+      // Should contain exit code 0
+      assert.match(result, /0/);
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+});
