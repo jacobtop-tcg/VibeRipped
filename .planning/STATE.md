@@ -11,28 +11,28 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 ## Current Position
 
 Phase: 1 of 6 (Core Rotation Engine)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-08 — Completed 01-01-PLAN.md (Foundation Modules)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-08 — Completed 01-02-PLAN.md (Rotation Engine with Cooldown)
 
-Progress: [█████░░░░░] 50%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 2 min
-- Total execution time: 0.03 hours
+- Total plans completed: 2
+- Average duration: 3 min
+- Total execution time: 0.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-core-rotation-engine | 1/2 | 2 min | 2 min |
+| 01-core-rotation-engine | 2/2 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min)
-- Trend: Baseline
+- Last 5 plans: 01-01 (2min), 01-02 (4min)
+- Trend: Consistent velocity
 
 *Updated after each plan completion*
 
@@ -51,6 +51,10 @@ Recent decisions affecting current work:
 - SHA256 for pool hashing — deterministic, collision-resistant change detection (01-01)
 - Fail-safe validation with reset-to-defaults — invalid state never crashes engine (01-01)
 - XDG Base Directory compliance — state at ~/.config/viberipped/ with secure permissions (01-01)
+- TDD with Node.js built-in test runner — zero external dependencies, fast execution (01-02)
+- Sentinel value 0 for "never triggered" — first trigger always allowed, simple check (01-02)
+- Crisp command format "{name} x{reps}" — zero motivational language, pure data (01-02)
+- bypassCooldown option for testing — deterministic rotation tests without time delays (01-02)
 
 ### Pending Todos
 
@@ -67,9 +71,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 01-01-PLAN.md - Foundation modules (pool + state persistence)
-Resume file: .planning/phases/01-core-rotation-engine/01-02-PLAN.md (next)
+Stopped at: Completed 01-02-PLAN.md - Rotation engine with cooldown enforcement
+Resume file: Phase 01 complete — ready for Phase 02
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-08 after completing 01-01-PLAN.md*
+*Last updated: 2026-02-08 after completing 01-02-PLAN.md*
