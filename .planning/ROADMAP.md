@@ -12,7 +12,7 @@ This roadmap delivers a Claude Code statusline provider that converts AI process
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Core Rotation Engine** - Deterministic exercise rotation with persistent state and cooldown enforcement
+- [x] **Phase 1: Core Rotation Engine** - Deterministic exercise rotation with persistent state and cooldown enforcement
 - [ ] **Phase 2: Exercise Pool Configuration** - Equipment-aware pool assembly with human-editable JSON storage
 - [ ] **Phase 3: Statusline Provider** - Claude Code integration with process detection and formatted output
 - [ ] **Phase 4: GSD Coexistence** - Multi-provider orchestration via concatenating statusline script
@@ -38,8 +38,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project scaffold, exercise pool module, state persistence module
-- [ ] 01-02-PLAN.md — Rotation engine with cooldown enforcement (TDD)
+- [x] 01-01-PLAN.md — Project scaffold, exercise pool module, state persistence module
+- [x] 01-02-PLAN.md — Rotation engine with cooldown enforcement (TDD)
 
 ### Phase 2: Exercise Pool Configuration
 **Goal**: Users can declare available equipment and system assembles a bounded, transparent exercise pool from bodyweight plus matching equipment exercises
@@ -141,7 +141,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Rotation Engine | 0/2 | Planned | - |
+| 1. Core Rotation Engine | 2/2 | ✓ Complete | 2026-02-08 |
 | 2. Exercise Pool Configuration | 0/? | Not started | - |
 | 3. Statusline Provider | 0/? | Not started | - |
 | 4. GSD Coexistence | 0/? | Not started | - |
@@ -150,4 +150,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-08 after initial creation*
+*Last updated: 2026-02-08 after Phase 1 completion*
