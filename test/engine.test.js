@@ -61,7 +61,7 @@ describe('Rotation Engine - Sequential Rotation', () => {
     // Trigger N times and verify exercises match pool order
     const results = [];
     for (let i = 0; i < DEFAULT_POOL.length; i++) {
-      const result = trigger(DEFAULT_POOL, { statePath });
+      const result = trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
       assert.strictEqual(result.type, 'exercise');
       results.push(result.exercise);
     }
@@ -76,11 +76,11 @@ describe('Rotation Engine - Sequential Rotation', () => {
   test('rotation wraps around at end of pool', () => {
     // Trigger pool.length + 1 times
     for (let i = 0; i < DEFAULT_POOL.length; i++) {
-      trigger(DEFAULT_POOL, { statePath });
+      trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
     }
 
     // Next trigger should wrap to index 0
-    const result = trigger(DEFAULT_POOL, { statePath });
+    const result = trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
     assert.strictEqual(result.type, 'exercise');
     assert.strictEqual(result.exercise.name, DEFAULT_POOL[0].name);
     assert.strictEqual(result.position.current, 0);
@@ -88,11 +88,12 @@ describe('Rotation Engine - Sequential Rotation', () => {
 
   test('state persists across trigger calls', () => {
     // First trigger
-    const first = trigger(DEFAULT_POOL, { statePath });
+    const first = trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
     assert.strictEqual(first.exercise.name, DEFAULT_POOL[0].name);
 
     // Second trigger (separate call, should load state from disk)
-    const second = trigger(DEFAULT_POOL, { statePath });
+    // Bypass cooldown to test persistence, not cooldown enforcement
+    const second = trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
     assert.strictEqual(second.exercise.name, DEFAULT_POOL[1].name);
     assert.strictEqual(second.position.current, 1);
   });
@@ -214,9 +215,9 @@ describe('Rotation Engine - Corruption Recovery', () => {
 
   test('pool change resets index', () => {
     // Trigger 3 times with default pool
-    trigger(DEFAULT_POOL, { statePath });
-    trigger(DEFAULT_POOL, { statePath });
-    const third = trigger(DEFAULT_POOL, { statePath });
+    trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
+    trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
+    const third = trigger(DEFAULT_POOL, { statePath, bypassCooldown: true });
     assert.strictEqual(third.exercise.name, DEFAULT_POOL[2].name);
 
     // Create a different pool
@@ -226,7 +227,7 @@ describe('Rotation Engine - Corruption Recovery', () => {
     ];
 
     // Trigger with new pool - should reset to index 0
-    const afterChange = trigger(newPool, { statePath });
+    const afterChange = trigger(newPool, { statePath, bypassCooldown: true });
     assert.strictEqual(afterChange.type, 'exercise');
     assert.strictEqual(afterChange.exercise.name, newPool[0].name);
     assert.strictEqual(afterChange.position.current, 0);
