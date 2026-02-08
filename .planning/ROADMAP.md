@@ -54,10 +54,11 @@ Plans:
   3. Pool dynamically includes only exercises matching declared equipment plus bodyweight movements
   4. User can manually add or remove exercises from pool files and system adapts rotation accordingly
 
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: TBD during plan-phase
+- [ ] 02-01-PLAN.md — Config module and exercise database with equipment-based pool assembly (TDD)
+- [ ] 02-02-PLAN.md — Engine integration with pool.json persistence and user edit preservation (TDD)
 
 ### Phase 3: Statusline Provider
 **Goal**: System operates as a Claude Code statusline provider that detects active processing and displays formatted exercise prompts
@@ -142,7 +143,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Rotation Engine | 2/2 | ✓ Complete | 2026-02-08 |
-| 2. Exercise Pool Configuration | 0/? | Not started | - |
+| 2. Exercise Pool Configuration | 0/2 | Planned | - |
 | 3. Statusline Provider | 0/? | Not started | - |
 | 4. GSD Coexistence | 0/? | Not started | - |
 | 5. CLI Tooling | 0/? | Not started | - |
@@ -150,4 +151,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-08 after Phase 1 completion*
+*Last updated: 2026-02-08 after Phase 2 planning*
