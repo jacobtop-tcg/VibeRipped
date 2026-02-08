@@ -74,10 +74,11 @@ Plans:
   4. System operates silently with zero notifications, sounds, or popups outside the statusline
   5. Statusline updates only during Claude API calls and disappears when processing completes
 
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: TBD during plan-phase
+- [ ] 03-01-PLAN.md — Statusline library modules: stdin parsing, process detection, ANSI formatting (TDD)
+- [ ] 03-02-PLAN.md — Statusline entry point integration and real Claude Code validation
 
 ### Phase 4: GSD Coexistence
 **Goal**: VibeRipped and GSD statusline outputs display side-by-side in a single composite statusline without crosstalk
@@ -144,11 +145,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Core Rotation Engine | 2/2 | ✓ Complete | 2026-02-08 |
 | 2. Exercise Pool Configuration | 2/2 | ✓ Complete | 2026-02-08 |
-| 3. Statusline Provider | 0/? | Not started | - |
+| 3. Statusline Provider | 0/2 | Planned | - |
 | 4. GSD Coexistence | 0/? | Not started | - |
 | 5. CLI Tooling | 0/? | Not started | - |
 | 6. Adaptive Difficulty | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-08 after Phase 2 execution complete*
+*Last updated: 2026-02-08 after Phase 3 planning complete*
