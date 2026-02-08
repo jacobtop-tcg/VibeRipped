@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 ## Current Position
 
 Phase: 3 of 6 (Statusline Provider)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-08 — Completed 03-01-PLAN.md (Statusline Library Modules)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-08 — Completed 03-02-PLAN.md (Statusline Integration)
 
-Progress: [█████████████░░░░░] 55%
+Progress: [██████████████░░░░░] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 2.8 min
-- Total execution time: 0.23 hours
+- Total plans completed: 6
+- Average duration: 2.7 min
+- Total execution time: 0.27 hours
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████████████░░░░░] 55%
 |-------|-------|-------|----------|
 | 01-core-rotation-engine | 2/2 | 6 min | 3 min |
 | 02-exercise-pool-configuration | 2/2 | 7 min | 3.5 min |
-| 03-statusline-provider | 1/2 | 1 min | 1 min |
+| 03-statusline-provider | 2/2 | 3 min | 1.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (4min), 02-01 (3min), 02-02 (4min), 03-01 (1min)
-- Trend: Accelerating velocity (recent TDD plan completed in 1 min)
+- Last 5 plans: 02-01 (3min), 02-02 (4min), 03-01 (1min), 03-02 (2min)
+- Trend: Sustained high velocity (Phase 3 completed in 3 min total)
 
 *Updated after each plan completion*
 
@@ -69,6 +69,11 @@ Recent decisions affecting current work:
 - formatExercise decoupled from engine types — accepts primitives (name, reps) for single responsibility (03-01)
 - Explicit null AND undefined checks in detection — zero tokens semantically different from null (03-01)
 - Zero tokens means "not processing" — session started but no Claude activity yet (03-01)
+- Detection heuristic validated with known limitation — triggers on all statusline updates after first API call, not just during active processing (acceptable for MVP) (03-02)
+- VIBERIPPED_BYPASS_COOLDOWN=1 env var added — enables deterministic testing by bypassing cooldown (03-02)
+- statusline.js uses process.stdout.write — clean output without trailing newline (03-02)
+- Silent operation on all error paths — exit 0 with no stdout preserves statusline stability (03-02)
+- Integration tests use isolated HOME dirs — prevents test interference with user state (03-02)
 
 ### Pending Todos
 
@@ -77,17 +82,18 @@ None yet.
 ### Blockers/Concerns
 
 **Phase 3 (Statusline Provider):**
-- Process detection heuristic has MEDIUM confidence — positive token counts indicate processing, but edge cases exist (cooldown immediately after processing). Requires empirical validation in 03-02 checkpoint with real Claude Code sessions.
+- ✓ RESOLVED: Process detection heuristic validated via real Claude Code session. Known limitation (triggers on all updates after first API call) acceptable for MVP.
 
 **Phase 4 (GSD Coexistence):**
 - Multi-instance state conflicts if user runs multiple Claude Code sessions simultaneously. Atomic write-rename mitigates but concurrent read-modify-write remains edge case.
+- Detection heuristic has known limitation (triggers on all updates after first API call) - may refine in future based on user feedback.
 
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 03-01-PLAN.md - Statusline library modules (parseStdin, isProcessing, formatExercise)
-Resume file: .planning/phases/03-statusline-provider/03-02-PLAN.md (next: Statusline Integration)
+Stopped at: Completed 03-02-PLAN.md - Statusline Integration (Phase 3 complete)
+Resume file: .planning/phases/04-gsd-coexistence/04-01-PLAN.md (next: GSD Coexistence Testing)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-08 after completing 03-01-PLAN.md*
+*Last updated: 2026-02-08 after completing 03-02-PLAN.md*
