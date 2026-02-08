@@ -6,32 +6,33 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction — so the user moves by default instead of browsing by default.
 
-**Current focus:** Phase 1 - Core Rotation Engine
+**Current focus:** Phase 2 - Exercise Pool Configuration
 
 ## Current Position
 
-Phase: 1 of 6 (Core Rotation Engine)
-Plan: 2 of 2 in current phase
+Phase: 2 of 6 (Exercise Pool Configuration)
+Plan: 1 of 1 in current phase
 Status: Phase complete
-Last activity: 2026-02-08 — Completed 01-02-PLAN.md (Rotation Engine with Cooldown)
+Last activity: 2026-02-08 — Completed 02-01-PLAN.md (Equipment Configuration & Pool Assembly)
 
-Progress: [██████████] 100%
+Progress: [████████████░░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
+- Total plans completed: 3
 - Average duration: 3 min
-- Total execution time: 0.1 hours
+- Total execution time: 0.15 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-core-rotation-engine | 2/2 | 6 min | 3 min |
+| 02-exercise-pool-configuration | 1/1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 01-02 (4min)
+- Last 5 plans: 01-01 (2min), 01-02 (4min), 02-01 (3min)
 - Trend: Consistent velocity
 
 *Updated after each plan completion*
@@ -55,6 +56,10 @@ Recent decisions affecting current work:
 - Sentinel value 0 for "never triggered" — first trigger always allowed, simple check (01-02)
 - Crisp command format "{name} x{reps}" — zero motivational language, pure data (01-02)
 - bypassCooldown option for testing — deterministic rotation tests without time delays (01-02)
+- EQUIPMENT_KEYS duplicated in pool.js — avoids circular dependency between config/state/pool modules (02-01)
+- Bodyweight exercises in FULL_EXERCISE_DATABASE match DEFAULT_POOL — backward compatibility preserved (02-01)
+- Partial config support with missing keys treated as false — flexible equipment declaration (02-01)
+- Pool assembly never returns empty pool — bodyweight always included, DEFAULT_POOL fallback (02-01)
 
 ### Pending Todos
 
@@ -71,9 +76,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 01-02-PLAN.md - Rotation engine with cooldown enforcement
-Resume file: Phase 01 complete — ready for Phase 02
+Stopped at: Completed 02-01-PLAN.md - Equipment configuration & pool assembly
+Resume file: Phase 02 complete — ready for Phase 03
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-08 after completing 01-02-PLAN.md*
+*Last updated: 2026-02-08 after completing 02-01-PLAN.md*
