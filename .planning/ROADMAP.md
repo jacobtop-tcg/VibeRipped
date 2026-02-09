@@ -77,10 +77,11 @@ Plans:
   2. Statusline displays timed exercises as "Plank 30s" instead of "Plank x30"
   3. Timed exercise durations scale with latency factor (capped at 1.5x max)
   4. Rotation engine treats timed and rep-based exercises equivalently in sequential order
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01: TBD
+- [ ] 09-01-PLAN.md -- TDD: Type-aware formatExercise display, duration validation, formatPrompt
+- [ ] 09-02-PLAN.md -- Statusline pipeline wiring and CLI pool add/list for timed exercises
 
 #### Phase 10: Environment Profiles
 **Goal**: Users can filter exercises by context appropriateness using environment profiles
