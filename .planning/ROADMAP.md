@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Exercise Pool Configuration** - Equipment-aware pool assembly with human-editable JSON storage
 - [x] **Phase 3: Statusline Provider** - Claude Code integration with process detection and formatted output
 - [x] **Phase 4: GSD Coexistence** - Multi-provider orchestration via concatenating statusline script
-- [ ] **Phase 5: CLI Tooling** - Setup, management, and dry-run commands for user-facing operations
+- [x] **Phase 5: CLI Tooling** - Setup, management, and dry-run commands for user-facing operations
 - [ ] **Phase 6: Adaptive Difficulty** - Rep scaling based on latency duration and user-controlled difficulty multiplier
 
 ## Phase Details
@@ -116,8 +116,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Commander scaffold, config command, test command with dryRun engine support
-- [ ] 05-02-PLAN.md — Pool management commands (list/add/remove) and CLI integration tests
+- [x] 05-01-PLAN.md — Commander scaffold, config command, test command with dryRun engine support
+- [x] 05-02-PLAN.md — Pool management commands (list/add/remove) and CLI integration tests
 
 ### Phase 6: Adaptive Difficulty
 **Goal**: System scales rep counts based on expected latency duration and user-controlled difficulty multiplier
@@ -149,9 +149,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Exercise Pool Configuration | 2/2 | ✓ Complete | 2026-02-08 |
 | 3. Statusline Provider | 2/2 | ✓ Complete | 2026-02-08 |
 | 4. GSD Coexistence | 2/2 | ✓ Complete | 2026-02-09 |
-| 5. CLI Tooling | 0/2 | Planning complete | - |
+| 5. CLI Tooling | 2/2 | ✓ Complete | 2026-02-09 |
 | 6. Adaptive Difficulty | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-09 after Phase 5 planning complete*
+*Last updated: 2026-02-09 after Phase 5 execution complete*
