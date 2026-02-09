@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction — so the user moves by default instead of browsing by default.
 
-**Current focus:** Phase 5 - End-to-End Integration
+**Current focus:** Phase 6 - Adaptive Difficulty
 
 ## Current Position
 
-Phase: 5 of 6 (CLI Tooling)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-09 — Completed 05-02-PLAN.md (Pool Management and CLI Tests)
+Phase: 6 of 6 (Adaptive Difficulty)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-09 — Completed 06-01-PLAN.md (Difficulty Scaling Module)
 
-Progress: [████████████████████] 100%
+Progress: [█████████████████████] 91% (11/12 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 2.6 min
-- Total execution time: 0.4 hours
+- Total plans completed: 11
+- Average duration: 2.5 min
+- Total execution time: 0.46 hours
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: [████████████████████] 100%
 | 03-statusline-provider | 2/2 | 3 min | 1.5 min |
 | 04-gsd-coexistence | 2/2 | 5 min | 2.5 min |
 | 05-cli-tooling | 2/2 | 6 min | 3 min |
+| 06-adaptive-difficulty | 1/2 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (2min), 04-02 (3min), 05-01 (3min), 05-02 (3min)
+- Last 5 plans: 04-02 (3min), 05-01 (3min), 05-02 (3min), 06-01 (2min)
 - Trend: Sustained high velocity
 
 *Updated after each plan completion*
@@ -90,6 +91,11 @@ Recent decisions affecting current work:
 - Case-insensitive duplicate detection — pool add/remove match names case-insensitively for better UX (05-02)
 - Custom CLI exercises have empty equipment array — CLI-added exercises default to bodyweight (05-02)
 - Non-fatal state updates in pool commands — state hash updates logged as warnings, state reinitializes on next trigger if corrupted (05-02)
+- Two-stage scaling (latency factor → user multiplier → clamp) — separates concerns, prevents multiplicative explosion (06-01)
+- Linear interpolation for latency mapping (2000-30000ms → 1.0-1.5x) — predictable, simple, sufficient for narrow range (06-01)
+- Discrete difficulty steps (0.5x to 2.5x in 0.25x increments) — prevents floating-point drift, clear progression (06-01)
+- Absolute rep bounds (5-60) after all scaling — ensures work-environment safety regardless of input combinations (06-01)
+- Store multiplier in config.difficulty, not state — config persists across pool changes, state resets on pool hash changes (06-01)
 
 ### Pending Todos
 
@@ -108,9 +114,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 05-02-PLAN.md - Pool Management and CLI Tests (Phase 5 complete)
-Resume file: Ready for Phase 6 (Final Validation)
+Stopped at: Completed 06-01-PLAN.md - Difficulty Scaling Module (Phase 6 in progress)
+Resume file: .planning/phases/06-adaptive-difficulty/06-02-PLAN.md
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-09 after completing 05-02-PLAN.md*
+*Last updated: 2026-02-09 after completing 06-01-PLAN.md*
