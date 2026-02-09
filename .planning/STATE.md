@@ -57,6 +57,9 @@ Recent decisions:
 - Phase 7: Used concise technical voice in README (no marketing fluff)
 - Phase 7: Documented GSD orchestrator for workflow coexistence
 - Phase 7: Used USERNAME placeholders for GitHub/author fields to avoid assumptions
+- Phase 8: Additive-only schema changes with optional fields for backward compat
+- Phase 8: category=null valid for uncategorized exercises (Phase 11 assigns categories)
+- Phase 8: Fire-and-forget migration in engine.js (existing recovery paths handle failures)
 
 ### Pending Todos
 
@@ -72,7 +75,7 @@ None.
 
 Last session: 2026-02-09
 Stopped at: Phase 8 (Data Model Extensions) - Complete
-Resume: `/gsd:execute-phase 9` (begin Phase 9: Timed Exercises)
+Resume: `/gsd:plan-phase 9`
 
 ---
 *State initialized: 2026-02-08*

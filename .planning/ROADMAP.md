@@ -65,8 +65,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- Schema extensions for pool/config/state with v1.1 optional fields and validation
-- [ ] 08-02-PLAN.md -- Migration module with backup creation and engine integration
+- [x] 08-01-PLAN.md -- Schema extensions for pool/config/state with v1.1 optional fields and validation
+- [x] 08-02-PLAN.md -- Migration module with backup creation and engine integration
 
 #### Phase 9: Timed Exercises
 **Goal**: Users see duration-based exercises displayed as time instructions alongside rep-based exercises
@@ -171,7 +171,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 5. CLI Tooling | v1.0 | 2/2 | ✓ Complete | 2026-02-09 |
 | 6. Adaptive Difficulty | v1.0 | 2/2 | ✓ Complete | 2026-02-09 |
 | 7. Distribution | v1.1 | 2/2 | ✓ Complete | 2026-02-09 |
-| 8. Data Model Extensions | v1.1 | 0/? | Not started | - |
+| 8. Data Model Extensions | v1.1 | 2/2 | ✓ Complete | 2026-02-09 |
 | 9. Timed Exercises | v1.1 | 0/? | Not started | - |
 | 10. Environment Profiles | v1.1 | 0/? | Not started | - |
 | 11. Category-Aware Rotation | v1.1 | 0/? | Not started | - |
