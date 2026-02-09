@@ -108,6 +108,25 @@ describe('formatExercise', () => {
     assert.strictEqual(ANSI.cyan, '\x1b[36m');
     assert.strictEqual(ANSI.bold, '\x1b[1m');
   });
+
+  test('formatExercise with prefix option prepends prefix inside ANSI codes', () => {
+    const result = formatExercise('Push-ups', 10, { prefix: '💪 ' });
+    assert.strictEqual(result, '\x1b[36m\x1b[1m💪 Push-ups x10\x1b[0m');
+  });
+
+  test('formatExercise without prefix option produces identical output to current behavior', () => {
+    const withoutPrefix = formatExercise('Push-ups', 10);
+    const withEmptyOptions = formatExercise('Push-ups', 10, {});
+    assert.strictEqual(withoutPrefix, '\x1b[36m\x1b[1mPush-ups x10\x1b[0m');
+    assert.strictEqual(withEmptyOptions, '\x1b[36m\x1b[1mPush-ups x10\x1b[0m');
+    assert.strictEqual(withoutPrefix, withEmptyOptions);
+  });
+
+  test('formatExercise with empty prefix string produces same output as no prefix', () => {
+    const withoutPrefix = formatExercise('Push-ups', 10);
+    const withEmptyPrefix = formatExercise('Push-ups', 10, { prefix: '' });
+    assert.strictEqual(withoutPrefix, withEmptyPrefix);
+  });
 });
 
 // Integration tests for statusline.js entry point

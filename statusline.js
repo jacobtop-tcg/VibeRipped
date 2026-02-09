@@ -65,7 +65,7 @@ const { trigger } = require('./engine');
 
         // Handle exercise - format and output to stdout
         if (result.type === 'exercise') {
-          const formatted = formatExercise(result.exercise.name, result.exercise.reps);
+          const formatted = formatExercise(result.exercise.name, result.exercise.reps, { prefix: '💪 ' });
           process.stdout.write(formatted);
           process.exit(0);
         }
