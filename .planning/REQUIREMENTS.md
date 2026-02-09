@@ -9,9 +9,9 @@ Requirements for v1.1 Polish & Intelligence release. Each maps to roadmap phases
 
 ### Distribution
 
-- [ ] **DIST-01**: User can install VibeRipped globally via `npm i -g viberipped` and run `vibripped` from any directory
-- [ ] **DIST-02**: Repository includes README with install instructions, usage guide, CLI reference, and visual demo
-- [ ] **DIST-03**: Repository includes .gitignore, LICENSE, and clean package.json metadata for public consumption
+- [x] **DIST-01**: User can install VibeRipped globally via `npm i -g viberipped` and run `vibripped` from any directory
+- [x] **DIST-02**: Repository includes README with install instructions, usage guide, CLI reference, and visual demo
+- [x] **DIST-03**: Repository includes .gitignore, LICENSE, and clean package.json metadata for public consumption
 
 ### Detection
 
