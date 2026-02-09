@@ -76,6 +76,24 @@ program
     testHandler();
   });
 
+// Harder command - increase difficulty
+program
+  .command('harder')
+  .description('Increase difficulty multiplier by one step')
+  .action(() => {
+    const harderHandler = require(path.join(__dirname, '../lib/cli/commands/harder.js'));
+    harderHandler();
+  });
+
+// Softer command - decrease difficulty
+program
+  .command('softer')
+  .description('Decrease difficulty multiplier by one step')
+  .action(() => {
+    const softerHandler = require(path.join(__dirname, '../lib/cli/commands/softer.js'));
+    softerHandler();
+  });
+
 // Show help if no arguments
 if (process.argv.length === 2) {
   program.outputHelp();
