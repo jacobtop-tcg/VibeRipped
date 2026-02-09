@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Core Rotation Engine** - Deterministic exercise rotation with persistent state and cooldown enforcement
 - [x] **Phase 2: Exercise Pool Configuration** - Equipment-aware pool assembly with human-editable JSON storage
 - [x] **Phase 3: Statusline Provider** - Claude Code integration with process detection and formatted output
-- [ ] **Phase 4: GSD Coexistence** - Multi-provider orchestration via concatenating statusline script
+- [x] **Phase 4: GSD Coexistence** - Multi-provider orchestration via concatenating statusline script
 - [ ] **Phase 5: CLI Tooling** - Setup, management, and dry-run commands for user-facing operations
 - [ ] **Phase 6: Adaptive Difficulty** - Rep scaling based on latency duration and user-controlled difficulty multiplier
 
@@ -96,8 +96,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Prefix support for visual identity and orchestrator shell script with tests
-- [ ] 04-02-PLAN.md — Configure Claude Code and verify composite statusline in live session
+- [x] 04-01-PLAN.md — Prefix support for visual identity and orchestrator shell script with tests
+- [x] 04-02-PLAN.md — Configure Claude Code and verify composite statusline in live session
 
 ### Phase 5: CLI Tooling
 **Goal**: User-facing commands for setup, pool management, and testing without requiring direct file editing
@@ -147,10 +147,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Core Rotation Engine | 2/2 | ✓ Complete | 2026-02-08 |
 | 2. Exercise Pool Configuration | 2/2 | ✓ Complete | 2026-02-08 |
 | 3. Statusline Provider | 2/2 | ✓ Complete | 2026-02-08 |
-| 4. GSD Coexistence | 0/2 | Not started | - |
+| 4. GSD Coexistence | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. CLI Tooling | 0/? | Not started | - |
 | 6. Adaptive Difficulty | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-09 after Phase 4 planning complete*
+*Last updated: 2026-02-09 after Phase 4 execution complete*
