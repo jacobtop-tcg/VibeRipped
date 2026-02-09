@@ -13,6 +13,7 @@ const { loadState, saveState, createDefaultState } = require('./lib/state');
 const { getNextExercise } = require('./lib/rotation');
 const { checkCooldown, formatRemaining, COOLDOWN_MS } = require('./lib/cooldown');
 const { loadConfig, getConfigPath } = require('./lib/config');
+const { scaleRepsForLatency } = require('./lib/difficulty');
 
 /**
  * Formats exercise as crisp command prompt.
@@ -52,6 +53,7 @@ function formatPrompt(exercise) {
  * @param {string} [options.statePath] - Override state path for testing
  * @param {boolean} [options.bypassCooldown] - Bypass cooldown check (for testing rotation)
  * @param {boolean} [options.dryRun] - Preview mode: skip state persistence
+ * @param {number} [options.latencyMs] - API latency in milliseconds (for difficulty scaling)
  * @returns {Object} Exercise response or cooldown response
  */
 function trigger(pool = null, options = {}) {
@@ -177,7 +179,14 @@ function trigger(pool = null, options = {}) {
       // Cooldown active - return remaining time (do NOT advance rotation)
       // Include last exercise for statusline display (currentIndex already advanced past it)
       const lastIndex = (state.currentIndex - 1 + actualPool.length) % actualPool.length;
-      const lastExercise = actualPool[lastIndex];
+      const lastExercise = { ...actualPool[lastIndex] };
+
+      // Apply difficulty scaling to lastExercise for display consistency
+      const config = pool === null ? loadConfig(configPath) : { difficulty: { multiplier: 1.0 } };
+      const multiplier = config.difficulty?.multiplier || 1.0;
+      const latencyMs = options.latencyMs || 0;
+      lastExercise.reps = scaleRepsForLatency(lastExercise.reps, latencyMs, multiplier);
+
       return {
         type: 'cooldown',
         remainingMs: cooldownStatus.remainingMs,
@@ -188,7 +197,16 @@ function trigger(pool = null, options = {}) {
   }
 
   // Get next exercise (mutates state.currentIndex)
-  const { exercise, previousIndex } = getNextExercise(state, actualPool);
+  const { exercise: rawExercise, previousIndex } = getNextExercise(state, actualPool);
+
+  // Clone exercise before scaling to avoid mutating pool
+  const exercise = { ...rawExercise };
+
+  // Apply difficulty scaling
+  const config = pool === null ? loadConfig(configPath) : { difficulty: { multiplier: 1.0 } };
+  const multiplier = config.difficulty?.multiplier || 1.0;
+  const latencyMs = options.latencyMs || 0;
+  exercise.reps = scaleRepsForLatency(exercise.reps, latencyMs, multiplier);
 
   // Update state
   state.lastTriggerTime = Date.now();

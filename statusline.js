@@ -53,10 +53,13 @@ const { trigger } = require('./engine');
           process.exit(0);
         }
 
+        // Extract latency from stdin JSON for difficulty scaling
+        const latencyMs = data?.cost?.total_api_duration_ms || 0;
+
         // Trigger the engine (config-driven mode)
         // Check for bypass cooldown env var (useful for testing)
         const bypassCooldown = process.env.VIBERIPPED_BYPASS_COOLDOWN === '1';
-        const result = trigger(null, { bypassCooldown });
+        const result = trigger(null, { bypassCooldown, latencyMs });
 
         // Handle cooldown - keep showing last exercise so it stays visible
         if (result.type === 'cooldown') {

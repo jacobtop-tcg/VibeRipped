@@ -498,3 +498,125 @@ describe('Rotation Engine - Pool.json User Edit Preservation', () => {
     assert.strictEqual(afterChange.position.current, 0, 'Index should reset to 0 after config change');
   });
 });
+
+describe('Rotation Engine - Difficulty Scaling', () => {
+  let tmpDir;
+  let statePath;
+  let configPath;
+
+  beforeEach(() => {
+    tmpDir = createTempStateDir();
+    statePath = path.join(tmpDir, 'state.json');
+    configPath = path.join(tmpDir, 'configuration.json');
+  });
+
+  afterEach(() => {
+    cleanupTempStateDir(tmpDir);
+  });
+
+  test('trigger with latencyMs option produces scaled reps', () => {
+    // Use explicit pool for predictable base reps
+    const testPool = [{ name: 'Pushups', reps: 20 }];
+
+    // Trigger with high latency (should increase reps)
+    const result = trigger(testPool, { statePath, bypassCooldown: true, latencyMs: 15000 });
+
+    assert.strictEqual(result.type, 'exercise');
+    assert.strictEqual(result.exercise.name, 'Pushups');
+    // With 15000ms latency (midpoint between 2000-30000), factor is ~1.23x
+    // 20 * 1.23 * 1.0 (default multiplier) ≈ 25
+    assert.ok(result.exercise.reps > 20, `Expected reps > 20, got ${result.exercise.reps}`);
+    assert.ok(result.exercise.reps <= 30, `Expected reps <= 30, got ${result.exercise.reps}`);
+  });
+
+  test('trigger with latencyMs=0 produces base reps (no scaling)', () => {
+    // Use explicit pool for predictable base reps
+    const testPool = [{ name: 'Squats', reps: 15 }];
+
+    // Trigger with zero latency (no scaling)
+    const result = trigger(testPool, { statePath, bypassCooldown: true, latencyMs: 0 });
+
+    assert.strictEqual(result.type, 'exercise');
+    assert.strictEqual(result.exercise.name, 'Squats');
+    // latencyMs=0 is below MIN_LATENCY (2000), so factor is 1.0x
+    // 15 * 1.0 * 1.0 = 15
+    assert.strictEqual(result.exercise.reps, 15);
+  });
+
+  test('reps are clamped to bounds with extreme latency and high multiplier', () => {
+    // Create config with maximum difficulty multiplier (2.5x)
+    const config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 2.5 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    // Use config-driven mode with high base reps
+    const testPool = [{ name: 'Pushups', reps: 50 }];
+
+    // Trigger with max latency (30000ms → 1.5x) and 2.5x multiplier
+    // 50 * 1.5 * 2.5 = 187.5 → clamped to MAX_REPS (60)
+    const result = trigger(testPool, { statePath, bypassCooldown: true, latencyMs: 30000 });
+
+    assert.strictEqual(result.type, 'exercise');
+    assert.ok(result.exercise.reps <= 60, `Expected reps <= 60, got ${result.exercise.reps}`);
+    assert.ok(result.exercise.reps >= 5, `Expected reps >= 5, got ${result.exercise.reps}`);
+  });
+
+  test('difficulty multiplier from config is applied in config-driven mode', () => {
+    // Create config with 1.5x difficulty multiplier
+    const config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 1.5 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    // Trigger with zero latency (only multiplier applies)
+    // Use config-driven mode (pool=null)
+    const result = trigger(null, { statePath, bypassCooldown: true, latencyMs: 0 });
+
+    assert.strictEqual(result.type, 'exercise');
+
+    // Find the base exercise in DEFAULT_POOL
+    const baseExercise = DEFAULT_POOL.find(ex => ex.name === result.exercise.name);
+    const expectedReps = Math.round(baseExercise.reps * 1.5);
+
+    assert.strictEqual(result.exercise.reps, expectedReps,
+      `Expected ${expectedReps} reps (${baseExercise.reps} * 1.5), got ${result.exercise.reps}`);
+  });
+
+  test('pool array is not mutated by difficulty scaling', () => {
+    // Use explicit pool
+    const testPool = [{ name: 'Pushups', reps: 20 }];
+    const originalReps = testPool[0].reps;
+
+    // Trigger with scaling
+    trigger(testPool, { statePath, bypassCooldown: true, latencyMs: 15000 });
+
+    // Original pool should be unchanged
+    assert.strictEqual(testPool[0].reps, originalReps, 'Pool should not be mutated');
+  });
+
+  test('cooldown response includes scaled lastExercise reps', () => {
+    // Create config with 2.0x difficulty multiplier
+    const config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 2.0 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    // First trigger (allowed)
+    const first = trigger(null, { statePath, latencyMs: 10000 });
+    assert.strictEqual(first.type, 'exercise');
+    const firstReps = first.exercise.reps;
+
+    // Second trigger (blocked by cooldown)
+    const second = trigger(null, { statePath, latencyMs: 10000 });
+    assert.strictEqual(second.type, 'cooldown');
+
+    // lastExercise should have same scaled reps as first trigger
+    assert.ok(second.lastExercise, 'Cooldown should include lastExercise');
+    assert.strictEqual(second.lastExercise.reps, firstReps,
+      'lastExercise reps should match first trigger scaled reps');
+  });
+});
