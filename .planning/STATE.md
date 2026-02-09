@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 ## Current Position
 
-Phase: 4 of 6 (GSD Coexistence) - COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-09 — Completed 04-02-PLAN.md (GSD Coexistence Testing)
+Phase: 5 of 6 (CLI Tooling)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-09 — Completed 05-01-PLAN.md (CLI Tooling Foundation)
 
-Progress: [████████████████░░░░] 80%
+Progress: [█████████████████░░░] 85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: 2.6 min
-- Total execution time: 0.35 hours
+- Total execution time: 0.4 hours
 
 **By Phase:**
 
@@ -32,10 +32,11 @@ Progress: [████████████████░░░░] 80%
 | 02-exercise-pool-configuration | 2/2 | 7 min | 3.5 min |
 | 03-statusline-provider | 2/2 | 3 min | 1.5 min |
 | 04-gsd-coexistence | 2/2 | 5 min | 2.5 min |
+| 05-cli-tooling | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (1min), 03-02 (2min), 04-01 (2min), 04-02 (3min)
-- Trend: Sustained high velocity (Phase 4 complete)
+- Last 5 plans: 03-02 (2min), 04-01 (2min), 04-02 (3min), 05-01 (3min)
+- Trend: Sustained high velocity
 
 *Updated after each plan completion*
 
@@ -80,6 +81,10 @@ Recent decisions affecting current work:
 - Conditional concatenation prevents orphaned separators — separator only when both providers active (04-01)
 - Provider failures isolated with || echo "" pattern — one provider crashing never breaks the other (04-01)
 - Orchestrator as production statusline provider — enables real-world coexistence validation and production deployment (04-02)
+- Commander negatable options for equipment flags — --kettlebell and --no-kettlebell pattern for intuitive CLI UX (05-01)
+- Immediate pool.json generation on config save — single-command workflow satisfies equipment declaration requirement (05-01)
+- dryRun option in engine.js for state-preserving preview — test command shows next exercise without advancing rotation (05-01)
+- Absolute path requires in CLI modules — path.join(__dirname, '../relative/path') avoids relative path resolution issues (05-01)
 
 ### Pending Todos
 
@@ -98,9 +103,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 04-02-PLAN.md - GSD Coexistence Testing (Phase 4 complete)
-Resume file: .planning/phases/05-end-to-end-integration/05-01-PLAN.md (next phase ready)
+Stopped at: Completed 05-01-PLAN.md - CLI Tooling Foundation
+Resume file: .planning/phases/05-cli-tooling/05-02-PLAN.md (next plan ready)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-09 after completing 04-02-PLAN.md*
+*Last updated: 2026-02-09 after completing 05-01-PLAN.md*
