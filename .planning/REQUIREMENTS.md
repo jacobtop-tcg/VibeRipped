@@ -1,0 +1,88 @@
+# Requirements: VibeRipped
+
+**Defined:** 2026-02-09
+**Core Value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction.
+
+## v1.1 Requirements
+
+Requirements for v1.1 Polish & Intelligence release. Each maps to roadmap phases.
+
+### Distribution
+
+- [ ] **DIST-01**: User can install VibeRipped globally via `npm i -g viberipped` and run `vibripped` from any directory
+- [ ] **DIST-02**: Repository includes README with install instructions, usage guide, CLI reference, and visual demo
+- [ ] **DIST-03**: Repository includes .gitignore, LICENSE, and clean package.json metadata for public consumption
+
+### Detection
+
+- [ ] **DTCT-01**: Statusline triggers exercise prompts only during actual Claude Code API calls, not on all statusline updates after first call
+
+### Exercise Intelligence
+
+- [ ] **INTL-01**: Each exercise has a muscle group category (push, pull, legs, core) and rotation avoids consecutive same-category exercises
+- [ ] **INTL-02**: Exercise pool supports timed exercises (planks, wall sits) displayed as "Plank 30s" alongside rep-based exercises
+- [ ] **INTL-03**: User can define environment profiles (home, office, coworking) that filter exercises by context appropriateness
+
+### Interactive UX
+
+- [ ] **INTR-01**: User can run `vibripped setup` interactive wizard with checkbox equipment selection for guided first-time experience
+- [ ] **INTR-02**: User can batch-add exercises from a comma-separated list via `vibripped pool add "Burpees 12, Mountain climbers 20"`
+- [ ] **INTR-03**: User can interactively manage pool exercises via checklist view with toggle on/off for each exercise
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Analytics
+
+- **ANLY-01**: System logs exercise completions with timestamps for optional review
+- **ANLY-02**: User can view aggregate movement volume over time
+
+### Advanced Display
+
+- **DISP-01**: Multi-line statusline support — exercise on one line, cooldown timer on another
+- **DISP-02**: Live countdown timer for timed exercises in statusline
+
+## Out of Scope
+
+Explicitly excluded. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| Workout programming / periodization | This is an execution primitive, not a training plan |
+| Technique instruction / form coaching | System assumes user knows the movements |
+| Motivational messaging / gamification / streaks | Guilt mechanics cause abandonment; boring systems get used |
+| Hook-based trigger system | Statusline-only; hooks add wiring complexity without proven benefit |
+| Mobile / external device integration | Lives entirely inside the terminal |
+| Random or AI-generated exercises | Pool is curated and bounded — creativity increases variance |
+| Sound or desktop notifications | Silent operation is a design invariant |
+| Exercise completion logging | Tracking adds friction without proven benefit (deferred to v2) |
+| Auto-progressive overload | User controls intensity manually via harder/softer commands |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| DIST-01 | Phase ? | Pending |
+| DIST-02 | Phase ? | Pending |
+| DIST-03 | Phase ? | Pending |
+| DTCT-01 | Phase ? | Pending |
+| INTL-01 | Phase ? | Pending |
+| INTL-02 | Phase ? | Pending |
+| INTL-03 | Phase ? | Pending |
+| INTR-01 | Phase ? | Pending |
+| INTR-02 | Phase ? | Pending |
+| INTR-03 | Phase ? | Pending |
+
+**Coverage:**
+- v1.1 requirements: 10 total
+- Mapped to phases: 0
+- Unmapped: 10 ⚠️
+
+**Coverage: 0%** — Awaiting roadmap creation.
+
+---
+*Requirements defined: 2026-02-09*
+*Last updated: 2026-02-09 after initial definition*
