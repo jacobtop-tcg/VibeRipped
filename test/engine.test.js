@@ -620,3 +620,175 @@ describe('Rotation Engine - Difficulty Scaling', () => {
       'lastExercise reps should match first trigger scaled reps');
   });
 });
+
+describe('v1.1 Migration Integration', () => {
+  let tmpDir;
+  let statePath;
+  let configPath;
+  let poolPath;
+
+  beforeEach(() => {
+    tmpDir = createTempStateDir();
+    statePath = path.join(tmpDir, 'state.json');
+    configPath = path.join(tmpDir, 'configuration.json');
+    poolPath = path.join(tmpDir, 'pool.json');
+  });
+
+  afterEach(() => {
+    cleanupTempStateDir(tmpDir);
+  });
+
+  test('trigger() with v1.0 config file creates configuration.json.v1.0.backup', () => {
+    // Write v1.0 config (no schemaVersion)
+    const v1Config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 1.0 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(v1Config, null, 2));
+
+    // Trigger engine (config-driven mode)
+    trigger(null, { statePath, bypassCooldown: true });
+
+    // Assert backup was created
+    const backupPath = configPath + '.v1.0.backup';
+    assert.ok(fs.existsSync(backupPath), 'Config backup should exist');
+
+    // Verify backup content matches original v1.0 config
+    const backupContent = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
+    assert.deepStrictEqual(backupContent, v1Config, 'Backup should match original v1.0 config');
+  });
+
+  test('trigger() with v1.0 state file creates state.json.v1.0.backup', () => {
+    // Write v1.0 config
+    const config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 1.0 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    // Write v1.0 state (no recentCategories, no schemaVersion)
+    const pool = assemblePool(config);
+    const v1State = {
+      currentIndex: 0,
+      lastTriggerTime: 0,
+      poolHash: computePoolHash(pool),
+      totalTriggered: 0
+    };
+    fs.writeFileSync(statePath, JSON.stringify(v1State, null, 2));
+
+    // Trigger engine
+    trigger(null, { statePath, bypassCooldown: true });
+
+    // Assert backup was created
+    const backupPath = statePath + '.v1.0.backup';
+    assert.ok(fs.existsSync(backupPath), 'State backup should exist');
+
+    // Verify backup content matches original v1.0 state
+    const backupContent = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
+    assert.deepStrictEqual(backupContent, v1State, 'Backup should match original v1.0 state');
+  });
+
+  test('trigger() with v1.0 pool file creates pool.json.v1.0.backup', () => {
+    // Write v1.0 config
+    const config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 1.0 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    // Write v1.0 pool (exercises without type/environments)
+    const v1Pool = [
+      { name: 'Pushups', reps: 15, equipment: [] },
+      { name: 'Squats', reps: 20, equipment: [] }
+    ];
+    fs.writeFileSync(poolPath, JSON.stringify(v1Pool, null, 2));
+
+    // Write state with matching poolHash to prevent pool regeneration
+    const v1State = {
+      currentIndex: 0,
+      lastTriggerTime: 0,
+      poolHash: computePoolHash(v1Pool),
+      configPoolHash: computePoolHash(assemblePool(config)),
+      totalTriggered: 0
+    };
+    fs.writeFileSync(statePath, JSON.stringify(v1State, null, 2));
+
+    // Trigger engine
+    trigger(null, { statePath, bypassCooldown: true });
+
+    // Assert backup was created
+    const backupPath = poolPath + '.v1.0.backup';
+    assert.ok(fs.existsSync(backupPath), 'Pool backup should exist');
+
+    // Verify backup content matches original v1.0 pool
+    const backupContent = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
+    assert.deepStrictEqual(backupContent, v1Pool, 'Backup should match original v1.0 pool');
+  });
+
+  test('trigger() still returns valid exercise response after migration', () => {
+    // Write v1.0 config
+    const v1Config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 1.0 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(v1Config, null, 2));
+
+    // Trigger engine
+    const result = trigger(null, { statePath, bypassCooldown: true });
+
+    // Assert valid exercise response
+    assert.strictEqual(result.type, 'exercise', 'Should return exercise type');
+    assert.ok(result.prompt, 'Should have prompt field');
+    assert.ok(result.exercise, 'Should have exercise field');
+    assert.ok(result.exercise.name, 'Exercise should have name');
+    assert.ok(typeof result.exercise.reps === 'number', 'Exercise should have numeric reps');
+  });
+
+  test('trigger() with already-migrated v1.1 files does NOT create new backups', () => {
+    // Write v1.1 config (already has schemaVersion)
+    const v11Config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 1.0 },
+      environment: 'anywhere',
+      schemaVersion: '1.1'
+    };
+    fs.writeFileSync(configPath, JSON.stringify(v11Config, null, 2));
+
+    // Trigger engine
+    trigger(null, { statePath, bypassCooldown: true });
+
+    // Assert no backup created
+    const backupPath = configPath + '.v1.0.backup';
+    assert.ok(!fs.existsSync(backupPath), 'Should NOT create backup for v1.1 config');
+  });
+
+  test('trigger() called twice only produces one set of backups (idempotent)', () => {
+    // Write v1.0 config
+    const v1Config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      difficulty: { multiplier: 1.0 }
+    };
+    fs.writeFileSync(configPath, JSON.stringify(v1Config, null, 2));
+
+    // First trigger
+    trigger(null, { statePath, bypassCooldown: true });
+
+    // Get backup mtime
+    const backupPath = configPath + '.v1.0.backup';
+    const firstMtime = fs.statSync(backupPath).mtime.getTime();
+
+    // Wait to ensure mtime would change if backup was recreated
+    const waitMs = 10;
+    const start = Date.now();
+    while (Date.now() - start < waitMs) {
+      // Busy wait
+    }
+
+    // Second trigger
+    trigger(null, { statePath, bypassCooldown: true });
+
+    // Assert backup was not modified
+    const secondMtime = fs.statSync(backupPath).mtime.getTime();
+    assert.strictEqual(secondMtime, firstMtime, 'Backup should not be recreated on second trigger');
+  });
+});

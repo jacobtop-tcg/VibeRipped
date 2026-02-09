@@ -14,6 +14,7 @@ const { getNextExercise } = require('./lib/rotation');
 const { checkCooldown, formatRemaining, COOLDOWN_MS } = require('./lib/cooldown');
 const { loadConfig, getConfigPath } = require('./lib/config');
 const { scaleRepsForLatency } = require('./lib/difficulty');
+const { migrateConfigIfNeeded, migratePoolIfNeeded, migrateStateIfNeeded } = require('./lib/migration');
 
 /**
  * Formats exercise as crisp command prompt.
@@ -69,6 +70,12 @@ function trigger(pool = null, options = {}) {
 
   if (pool === null) {
     // Config-driven mode: load config, assemble pool, handle pool.json persistence
+
+    // Migrate v1.0 files to v1.1 schema on first launch
+    migrateConfigIfNeeded(configPath);
+    migratePoolIfNeeded(poolPath);
+    migrateStateIfNeeded(statePath);
+
     const config = loadConfig(configPath);
     const assembledPool = assemblePool(config);
     const assembledHash = computePoolHash(assembledPool);
