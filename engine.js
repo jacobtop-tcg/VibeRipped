@@ -51,6 +51,7 @@ function formatPrompt(exercise) {
  * @param {Object} [options={}] - Options
  * @param {string} [options.statePath] - Override state path for testing
  * @param {boolean} [options.bypassCooldown] - Bypass cooldown check (for testing rotation)
+ * @param {boolean} [options.dryRun] - Preview mode: skip state persistence
  * @returns {Object} Exercise response or cooldown response
  */
 function trigger(pool = null, options = {}) {
@@ -193,12 +194,14 @@ function trigger(pool = null, options = {}) {
   state.lastTriggerTime = Date.now();
   state.totalTriggered++;
 
-  // Save state
-  try {
-    fs.mkdirSync(path.dirname(statePath), { recursive: true, mode: 0o700 });
-    fs.writeFileSync(statePath, JSON.stringify(state, null, 2), { mode: 0o600 });
-  } catch (e) {
-    console.error(`State save error: ${e.message}`);
+  // Save state (skip if dryRun)
+  if (!options.dryRun) {
+    try {
+      fs.mkdirSync(path.dirname(statePath), { recursive: true, mode: 0o700 });
+      fs.writeFileSync(statePath, JSON.stringify(state, null, 2), { mode: 0o600 });
+    } catch (e) {
+      console.error(`State save error: ${e.message}`);
+    }
   }
 
   // Return exercise response
