@@ -62,10 +62,11 @@ Plans:
   3. state.json schema supports optional `recentCategories` array for rotation tracking
   4. v1.0 configs migrate automatically on first v1.1 launch with backup created
   5. Missing fields default gracefully without throwing errors
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md -- Schema extensions for pool/config/state with v1.1 optional fields and validation
+- [ ] 08-02-PLAN.md -- Migration module with backup creation and engine integration
 
 #### Phase 9: Timed Exercises
 **Goal**: Users see duration-based exercises displayed as time instructions alongside rep-based exercises
