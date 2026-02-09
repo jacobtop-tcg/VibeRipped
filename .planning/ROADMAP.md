@@ -113,10 +113,11 @@ Plans:
   4. CLI commands validate input and provide clear error messages for invalid operations
   5. Pool management commands update JSON files and trigger state re-indexing automatically
 
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 05-01: TBD during plan-phase
+- [ ] 05-01-PLAN.md — Commander scaffold, config command, test command with dryRun engine support
+- [ ] 05-02-PLAN.md — Pool management commands (list/add/remove) and CLI integration tests
 
 ### Phase 6: Adaptive Difficulty
 **Goal**: System scales rep counts based on expected latency duration and user-controlled difficulty multiplier
@@ -140,7 +141,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -148,9 +149,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Exercise Pool Configuration | 2/2 | ✓ Complete | 2026-02-08 |
 | 3. Statusline Provider | 2/2 | ✓ Complete | 2026-02-08 |
 | 4. GSD Coexistence | 2/2 | ✓ Complete | 2026-02-09 |
-| 5. CLI Tooling | 0/? | Not started | - |
+| 5. CLI Tooling | 0/2 | Planning complete | - |
 | 6. Adaptive Difficulty | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-09 after Phase 4 execution complete*
+*Last updated: 2026-02-09 after Phase 5 planning complete*
