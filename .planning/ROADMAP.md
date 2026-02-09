@@ -46,10 +46,11 @@ Archives: `.planning/milestones/v1.0-ROADMAP.md`, `.planning/milestones/v1.0-REQ
   2. Repository includes README with installation guide, usage examples, CLI reference, and visual demo
   3. Repository includes proper npm packaging metadata (LICENSE, .gitignore, clean package.json)
   4. Bin script has correct shebang and executable permissions across platforms
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md -- Package metadata, LICENSE, .gitignore, and global install verification
+- [ ] 07-02-PLAN.md -- Comprehensive README with install guide, CLI reference, and usage docs
 
 #### Phase 8: Data Model Extensions
 **Goal**: Exercise pool and config schemas support category tagging, timed exercises, and environment filtering
@@ -168,7 +169,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 4. GSD Coexistence | v1.0 | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. CLI Tooling | v1.0 | 2/2 | ✓ Complete | 2026-02-09 |
 | 6. Adaptive Difficulty | v1.0 | 2/2 | ✓ Complete | 2026-02-09 |
-| 7. Distribution | v1.1 | 0/? | Not started | - |
+| 7. Distribution | v1.1 | 0/2 | In progress | - |
 | 8. Data Model Extensions | v1.1 | 0/? | Not started | - |
 | 9. Timed Exercises | v1.1 | 0/? | Not started | - |
 | 10. Environment Profiles | v1.1 | 0/? | Not started | - |
