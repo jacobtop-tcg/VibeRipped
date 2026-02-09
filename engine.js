@@ -174,10 +174,14 @@ function trigger(pool = null, options = {}) {
 
     if (!cooldownStatus.allowed) {
       // Cooldown active - return remaining time (do NOT advance rotation)
+      // Include last exercise for statusline display (currentIndex already advanced past it)
+      const lastIndex = (state.currentIndex - 1 + actualPool.length) % actualPool.length;
+      const lastExercise = actualPool[lastIndex];
       return {
         type: 'cooldown',
         remainingMs: cooldownStatus.remainingMs,
-        remainingHuman: formatRemaining(cooldownStatus.remainingMs)
+        remainingHuman: formatRemaining(cooldownStatus.remainingMs),
+        lastExercise
       };
     }
   }

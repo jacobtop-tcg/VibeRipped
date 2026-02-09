@@ -58,8 +58,12 @@ const { trigger } = require('./engine');
         const bypassCooldown = process.env.VIBERIPPED_BYPASS_COOLDOWN === '1';
         const result = trigger(null, { bypassCooldown });
 
-        // Handle cooldown - exit silently (disappear during cooldown per STAT-03)
+        // Handle cooldown - keep showing last exercise so it stays visible
         if (result.type === 'cooldown') {
+          if (result.lastExercise) {
+            const formatted = formatExercise(result.lastExercise.name, result.lastExercise.reps, { prefix: '💪 ' });
+            process.stdout.write(formatted);
+          }
           process.exit(0);
         }
 
