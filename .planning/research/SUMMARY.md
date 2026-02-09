@@ -1,241 +1,286 @@
 # Project Research Summary
 
-**Project:** VibeRipped
-**Domain:** Claude Code statusline provider / latency-coupled micro-exercise rotation system
-**Researched:** 2026-02-08
-**Confidence:** MEDIUM-HIGH
+**Project:** VibeRipped v1.1
+**Domain:** CLI Exercise Rotation App - Feature Additions
+**Researched:** 2026-02-09
+**Confidence:** HIGH
 
 ## Executive Summary
 
-VibeRipped is a Claude Code statusline provider that converts API latency into movement prompts. This is a fundamentally novel primitive: instead of arbitrary timers (Pomodoro) or generic reminders, it couples exercise prompts to actual workflow wait times. Research validates the core insight that developers experience 3-30+ second latencies during Claude API calls—long enough for micro-exercises (5-20 reps) but too short to context-switch. The statusline is the perfect interface: passive display during latency, automatic disappearance when processing completes, zero interruption to flow state.
+VibeRipped v1.1 builds on a zero-dependency v1.0 foundation to add distribution, interactive UX, and intelligent exercise rotation. The research reveals a clear path: this is a Node.js CLI tool following 2026 best practices for npm packaging, interactive prompts, and config management. The recommended approach prioritizes pragmatic dependency additions (prompts for UX, Node.js 20.6.0+ for native .env support) while maintaining the core zero-dependency philosophy for business logic.
 
-The recommended implementation is Bash + jq for the statusline script (Claude Code's de facto standard), with file-based state persistence for rotation tracking and JSON configuration for equipment. Research across 15+ community statuslines, official documentation, and domain studies (exercise reminders, developer productivity, habit formation) converges on a clear pattern: boring systems get used. This means zero gamification, zero guilt mechanics, command-style prompts only ("Pushups x15" not coaching language), and aggressive cooldown (15-30 minutes minimum) to prevent notification fatigue.
+The key insight from research is that modern CLI tools balance minimal dependencies with professional UX. Adding `prompts` (187 kB, 2 dependencies) for interactive setup is justified—implementing checkbox/multiselect from scratch requires 200-300 LOC of terminal manipulation. The category-aware rotation feature requires careful algorithm design to avoid bias (weighted selection by pool size, not naive round-robin). Environment profiles enable context-aware filtering (home office vs coworking space).
 
-Critical risks center on three areas: (1) statusline race conditions with existing GSD provider requiring orchestrator coordination, (2) process detection heuristics since Claude Code doesn't expose "is processing" flag, and (3) over-triggering leading to user disablement. All three are addressable in Phase 1 with atomic operations, stdin JSON delta tracking, and persistent cooldown enforcement. The architecture is deliberately simple: single entry point, 6 modular components, ~100 lines of core logic.
+Critical risks center on backward compatibility and integration points. v1.0 users must migrate smoothly (config schema extension with auto-detection), interactive prompts must not break statusline stdin pipe (check `process.stdin.isTTY`), and npm bin scripts need correct permissions/shebang. Detection improvement is highest risk (depends on undocumented Claude Code statusline JSON structure). Mitigation: comprehensive migration logic, explicit TTY checks, prepublish validation, and live testing for detection.
 
 ## Key Findings
 
 ### Recommended Stack
 
-**Core Runtime:** Bash 4.0+ with jq 1.6+ for JSON parsing. This is the official Claude Code statusline standard—60%+ community adoption, zero installation overhead beyond jq (universally available via package managers), and fastest startup time (<5ms vs. 20-50ms for Python, 50-200ms for Node.js). All official documentation examples use Bash.
+v1.1 maintains v1.0's zero-dependency core (Node.js built-ins, write-file-atomic) while pragmatically adding UX dependencies. Node.js 20.6.0+ becomes minimum version for native --env-file support (eliminates dotenv dependency). Commander.js continues handling CLI parsing. New: `prompts@2.4.2` for interactive terminal prompts (checkbox, multiselect).
 
 **Core technologies:**
-- **Bash 4.0+**: Script runtime — Native statusline language, officially documented, zero dependencies, maximum compatibility
-- **jq 1.6+**: JSON parsing — Standard tool for Claude Code's stdin JSON, fast, lightweight, ubiquitous
-- **Filesystem (flat files)**: State persistence — Universal pattern across community implementations; `~/.claude/cache/vibripped-state.json` stores rotation index + cooldown timestamp (~50 bytes)
-- **JSON (settings.json)**: Configuration — Claude Code's canonical config mechanism; equipment declarations live in `~/.claude/settings.json` under custom key
+- Node.js 20.6.0+ — Native .env file support via --env-file flag, eliminates runtime dependency
+- Commander.js ^14.0.3 — CLI argument parsing (already in v1.0), handles subcommands and option parsing
+- write-file-atomic ^7.0.0 — Atomic state writes (already in v1.0), maintains transactional updates
+- prompts ^2.4.2 — Interactive terminal prompts (NEW), lightweight (187 kB, 2 deps), supports checkbox/multiselect
 
-**Critical constraint:** Claude Code statusline API does NOT expose "is processing" flag. Workarounds require heuristic detection via `context_window.current_usage` changes or `cost.total_api_duration_ms` deltas. This is a LOW confidence area requiring empirical validation.
+**What does NOT need dependencies:**
+- Timer display: Node.js setInterval + process.stdout.write + ANSI escape codes (already validated in v1.0)
+- Environment profiles: Node.js --env-file flag or process.env (native as of v20.6.0)
+- Category rotation: Pure algorithm logic extending existing rotation engine
+- npm packaging: package.json configuration (native npm feature)
+
+**Critical version requirement:** Node.js 20.6.0+ for --env-file support. Set `"engines": {"node": ">=20.6.0"}` in package.json.
 
 ### Expected Features
 
+Research identifies clear MVP boundaries for v1.1 launch vs future versions.
+
 **Must have (table stakes):**
-- **Deterministic exercise rotation** — Sequential rotation prevents repetition, ensures variety without decision-making
-- **Equipment configuration** — Users have different gear (kettlebell, dumbbells, pull-up bar, parallettes, bodyweight only)
-- **Cooldown prevention** — Minimum 15-30 minute interval between prompts; prevents spam during rapid API calls
-- **Crisp command-style output** — "10 push-ups" not "Great job! Let's do 10 amazing push-ups!" (cognitive friction research validates this)
-- **Latency-triggered display** — Core differentiator: exercises only during Claude API calls, not arbitrary timers
-- **Statusline integration** — Must coexist with GSD provider without crosstalk/flicker
-- **Silent operation** — Passive display only, zero notifications/sounds outside statusline
+- npm global install — Users expect `npm install -g vibripped` then `vibripped` command works
+- Interactive setup wizard — Modern CLIs support `vibripped setup` onboarding with checkbox equipment selection
+- Category-aware rotation — Fitness apps avoid consecutive same-muscle-group exercises (push/pull/legs/core)
+- Timed exercise support — Duration-based exercises (planks, wall sits) need `type: "timed"` vs `type: "reps"`
+- Environment profiles — Different exercises in different contexts (home office vs coworking)
+- README documentation — npm packages must document install, setup, basic usage
+- Migration from v1.0 — Smooth upgrade for existing users (auto-migrate config and state)
 
-**Should have (competitive differentiators):**
-- **Rotation state persistence** — Resume rotation across sessions without repeating recent exercises (prevents "always push-ups on restart")
-- **Exercise pool transparency** — Users can inspect/modify exercise list (text file or JSON)
-- **Duration-aware prompts** — Longer latency = longer exercise (30s+ wait gets "20 squats" vs. quick call gets "5 push-ups")
-- **Rep count calibration** — Adjust difficulty to fitness level (global multiplier: beginner 0.5x, advanced 2x)
+**Should have (differentiators):**
+- Zero external dependencies for core features — v1.0 philosophy maintained (prompts is setup-only)
+- First-run wizard with smart defaults — Checkbox equipment → suggest exercises → create config
+- Public-safe exercise filtering — Recognition that developers work in coworking spaces where floor exercises aren't viable
+- Detection accuracy improvement — v1.0 triggers on all statusline updates after first API call, v1.1 should only trigger during actual processing
 
-**Defer (v2+):**
-- **Multi-equipment profiles** — Switch contexts ("home office" vs. "coworking") adds config complexity; validate demand first
-- **Exercise history/analytics** — Scope creep into fitness tracker; VibeRipped is a prompt primitive, not a logger
+**Defer to v2.0+:**
+- Automatic category detection from names — Brittle NLP, fails on custom names, manual tagging is clear
+- Profile auto-switching by WiFi — Requires OS permissions, flaky detection, privacy concerns
+- Cloud sync for multi-machine — Adds backend infrastructure, auth, maintenance burden
+- Exercise completion logging — Breaks "zero friction" philosophy, scope creep into tracking
+- AI-generated exercise suggestions — Non-deterministic, adds API dependency, scope creep
+
+**Anti-features (commonly requested, problematic):**
+- Automatic category detection from exercise names — Use manual category tagging instead
+- Profile auto-switching by location/WiFi — Use explicit profile switching with `--profile` flag
+- Exercise completion confirmation — Trust user autonomy, no logging
+- Cloud sync — Local-first is core value, power users can symlink to Dropbox/iCloud
+- Social features (sharing, leaderboards) — Misaligned with "boring systems get used"
 
 ### Architecture Approach
 
-**Single entry point pattern:** Claude Code executes ONE statusline script per update (not a composite surface). Multi-provider displays require orchestrator script that calls GSD + VibeRipped modules and concatenates outputs. File-based state survives process restarts (statusline script is ephemeral). Modular separation enables isolated testing and future extensibility.
+v1.1 integrates cleanly via new modules in existing directories with minimal modification to core engine. The architecture maintains v1.0's pattern: pure libraries (rotation, difficulty, cooldown) + stateful orchestrators (engine.js, CLI commands). Most features extend data models via optional fields (backward compatible).
 
 **Major components:**
-1. **Statusline Entry Point** — Read stdin JSON, coordinate all logic, print output (single executable script)
-2. **Process Detector** — Heuristic to determine if Claude is actively processing (check `context_window.current_usage` non-null + delta thresholds)
-3. **State Manager** — Load/save rotation index + cooldown timestamp (atomic write-rename pattern prevents corruption)
-4. **Config Loader** — Read equipment declarations from `~/.claude/settings.json`
-5. **Exercise Pool Assembler** — Build bounded array from bodyweight + equipment-conditional exercises (dynamic based on user config)
-6. **Rotation Engine** — Sequential iteration with modulo wrapping `(index + 1) % pool.length`, cooldown enforcement via timestamp comparison
-7. **Output Formatter** — Crisp command string with optional ANSI colors
 
-**Data flow:** Stdin JSON → Activity detection → Load state → Load config → Assemble pool → Check cooldown → Rotate → Save state → Format output → Stdout → Display → Process exits.
+1. **npm Packaging (metadata-only)** — package.json additions (bin, files, engines), README.md, no code changes
+2. **Interactive UX (CLI layer)** — New `lib/cli/commands/setup.js` using prompts, existing commands add `--interactive` flag
+3. **Category Rotation (core engine)** — Extends pool schema with `category` field, replaces `lib/rotation.js` with weighted selection algorithm
+4. **Timed Exercises (display logic)** — Extends pool schema with `type: "reps"|"timed"`, modifies `engine.js` formatPrompt
+5. **Environment Profiles (config extension)** — Extends config schema with `environment` field, filters pool by context
+6. **Detection Improvement (heuristic replacement)** — Replaces `lib/statusline/detection.js` logic to check `cost.total_api_duration_ms`
 
-**Critical pattern:** Atomic write-rename for state file (write to `.tmp`, then `mv` to `.json`) prevents corruption on crash. Exercise pool is static JSON files (baked into script), NOT fetched from remote API (avoids latency).
+**Data model extensions (backward compatible):**
+- pool.json: Add optional `category`, `type`, `environments` fields (defaults if missing)
+- configuration.json: Add optional `environment` field (defaults to "home")
+- state.json: Add optional `recentCategories` array (initializes to empty)
+
+**Integration patterns:**
+- Schema extension with defaults — Treat missing fields as defaults, no migration required
+- Pure library + stateful orchestrator — Keep modules testable, isolate I/O in engine/CLI
+- Fail-safe defaults — Fall back to safe behavior instead of throwing errors
+
+**Critical integration point:** Interactive prompts must check `process.stdin.isTTY` before running. Statusline mode uses stdin pipe, prompts would break it.
 
 ### Critical Pitfalls
 
-1. **Statusline race condition / Last Write Wins crosstalk** — Multiple providers overwrite each other's outputs causing flicker and data loss. PREVENTION: Instance-specific session markers, atomic operations, coordinate with GSD via shared orchestrator script. Test with two Claude Code sessions simultaneously.
+**1. NPM Bin Permissions Lost After Install**
+Bin files lack executable permissions or shebang. Users get "Permission denied" errors. Solution: Add `#!/usr/bin/env node` shebang, `chmod +x bin/vibripped.js`, use `git update-index --chmod=+x`, test with `npm link` before publishing.
 
-2. **Over-triggering leading to user disablement** — Prompts every 30-60 seconds during active work create notification fatigue (research shows 43% lower opt-out with user control, but 2-3/week limit needed). PREVENTION: Aggressive cooldown (15-30 minutes minimum), track last prompt timestamp across restarts, priority-based delivery (only trigger on API calls >X seconds), user-configurable tolerance.
+**2. Interactive Prompts Break Statusline Stdin Pipe**
+Prompts hijack stdin, breaking statusline data flow. Detect pipe vs terminal with `process.stdin.isTTY`. Statusline commands should NEVER use interactive prompts. Add `--interactive` flag for explicit mode switching.
 
-3. **State file corruption on concurrent access** — Half-writes when process crashes after truncation but before finishing JSON write. PREVENTION: Atomic write-rename pattern, forensic-safe recovery (return default state without overwriting corrupt file), version state format for migration, regular backups (`.bak` on successful writes).
+**3. Category Rotation Bias - Bodyweight Exercises Starved**
+Naive round-robin gives small equipment categories equal turns (5 kettlebell exercises get 50% of suggestions vs 40 bodyweight exercises). Use weighted category selection proportional to pool size instead of equal turns.
 
-4. **Process detection false positives/negatives** — Triggers on non-AI events (file saves, git operations) or misses actual AI calls. PREVENTION: Hook into `cost.total_api_duration_ms` delta tracking, ignore updates where `context_window.current_usage` is null, configurable/adaptive threshold.
+**4. Config Migration Breaks v1.0 Users**
+v1.1 config schema changes lose v1.0 settings. Add config version field, detect v1.0 format, auto-migrate to v1.1, backup old file. Test migration with real v1.0 configs before release.
 
-5. **Cognitive friction from verbose/clever prompts** — Motivational language adds parsing overhead making users hesitate or skip. PREVENTION: Command-style output ("Pushups x15"), no emojis/exclamation points, configuration happens once (prompts assume user knows exercises), test: can user execute without re-reading?
+**5. Detection Heuristic Tuning Causes Thrashing**
+Hardcoded threshold doesn't match all usage patterns. Make threshold configurable (`config.detection.sensitivity`), add dry-run mode, track telemetry (opt-in), test with recorded statusline data.
 
-6. **Intensity creep making users resist commands** — Pool contains exercises appropriate for gym but not work environment (diamond pushups, burpees at standing desk). PREVENTION: Configuration wizard asks "during work hours?", equipment tags for filtering, `/viberipped skip` escape hatch, pool design guidance ("if you wouldn't do this in front of coworker, don't add it").
-
-7. **Loss of determinism eroding trust** — Same exercise appears twice in a row, rotation doesn't loop cleanly. PREVENTION: State includes `pool_hash` to detect pool changes, increment index AFTER successful prompt (not before), `last_exercise` sanity check, determinism test in test suite.
-
-8. **Embarrassment/impracticality in public settings** — Suggests burpees during video call, floor exercises in open office. PREVENTION: Pool tagging (`public-safe: true/false`), default pool conservative (desk-friendly only), avoid floor/noise/sweat exercises, prioritize standing stretches/isometrics.
+**Additional critical pitfalls:**
+- Commander.js action handler `this` context lost with async prompts (use parameters, not `this.opts()`)
+- Timed exercise state race (persist `lastTriggerTime` before showing prompt, not after)
+- npm lifecycle script confusion (use `prepublishOnly` for publish tasks, not `prepare`)
+- XDG_CONFIG_HOME not respected on macOS (detect and migrate from `~/.config` to `$XDG_CONFIG_HOME`)
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on research, suggested phase structure follows dependency order and risk profile.
 
-### Phase 1: Core Rotation (No Claude Integration)
-**Rationale:** Validate rotation logic independently before statusline complexity. Exercise pool + state management + rotation engine are orthogonal to Claude Code integration. Build testable CLI tool first.
+### Phase 1: Foundation & Distribution
+**Rationale:** Zero dependencies on other v1.1 features, can ship independently. Establishes distribution channel.
+**Delivers:** npm package, global install, README documentation
+**Addresses:** Table stakes (npm distribution, documentation)
+**Avoids:** Pitfall #1 (bin permissions), Pitfall #8 (lifecycle scripts)
+**Research flag:** No research needed (standard npm workflow, well-documented)
 
-**Delivers:** Standalone CLI that emits exercises on demand: `node vibripped-cli.js` → "Squats x15"
+### Phase 2: Data Model Extensions
+**Rationale:** All features need schema extensions, batch them together to minimize migration complexity.
+**Delivers:** Extended pool schema (category, type, environments), extended config schema (environment), extended state schema (recentCategories)
+**Addresses:** Groundwork for timed exercises, category rotation, environment profiles
+**Avoids:** Pitfall #6 (config migration) via unified migration logic
+**Research flag:** No research needed (schema extension with backward compat is standard pattern)
 
-**Addresses:**
-- Deterministic rotation (table stakes)
-- Equipment configuration (table stakes)
-- Cooldown prevention (critical pitfall #2)
-- Exercise pool transparency (should-have)
+### Phase 3: Timed Exercise Support
+**Rationale:** Simplest feature using extended schema, validates data model before complex rotation.
+**Delivers:** Type-aware exercise display ("Plank 30s" vs "Pushups x15"), duration-based exercises
+**Addresses:** Table stakes (timed exercise support)
+**Avoids:** Pitfall #5 (timer state race) via immediate persistence
+**Research flag:** No research needed (straightforward display logic)
 
-**Avoids:**
-- State file corruption (critical pitfall #3) via atomic write-rename
-- Loss of determinism (critical pitfall #7) via modulo wrapping and pool hash tracking
-- Intensity creep (critical pitfall #6) via equipment tags and pool validation
+### Phase 4: Environment Profiles
+**Rationale:** Uses extended config schema, independent of rotation changes.
+**Delivers:** Context-aware filtering (home/office/coworking/anywhere), profile switching
+**Addresses:** Table stakes (environment profiles)
+**Avoids:** Pitfall #9 (XDG path migration), Pitfall #10 (option conflicts)
+**Research flag:** No research needed (extends existing config pattern)
 
-**Components built:**
-- Exercise pool data files (JSON format)
-- State manager (load/save with atomic writes)
-- Rotation engine (sequential iteration + cooldown)
-- Config loader (equipment flags)
-- Pool assembler (bodyweight + equipment matches)
+### Phase 5: Category-Aware Rotation
+**Rationale:** Complex algorithm change, depends on pool schema having category field.
+**Delivers:** Weighted category selection, muscle group recovery awareness
+**Addresses:** Table stakes (category rotation), differentiator (recovery awareness)
+**Avoids:** Pitfall #4 (category bias) via weighted selection
+**Research flag:** Phase research needed (rotation algorithm complexity, edge cases with small pools)
 
-**Verification:** Unit tests for rotation determinism, cooldown enforcement, pool size changes, state corruption recovery.
+### Phase 6: Interactive Setup Wizard
+**Rationale:** Depends on finalized config/pool schemas, orchestrates existing logic.
+**Delivers:** `vibripped setup` command, checkbox equipment selection, smart defaults
+**Addresses:** Table stakes (interactive setup)
+**Avoids:** Pitfall #2 (stdin pipe), Pitfall #3 (Commander.js context)
+**Research flag:** No research needed (prompts library well-documented)
 
-### Phase 2: Statusline Integration
-**Rationale:** Now that rotation works standalone, integrate into Claude Code's statusline API. This phase addresses the statusline-specific pitfalls (race conditions, process detection, output formatting).
-
-**Delivers:** Functional statusline script installable as `statusLine.command` in `~/.claude/settings.json`
-
-**Addresses:**
-- Latency-triggered display (table stakes, core differentiator)
-- Statusline integration (table stakes)
-- Silent operation (table stakes)
-- Crisp command-style output (critical pitfall #5)
-
-**Avoids:**
-- Process detection false positives (critical pitfall #4) via stdin JSON delta tracking
-- Cognitive friction (critical pitfall #5) via command-style formatter
-- Embarrassment (critical pitfall #8) via default desk-friendly pool
-
-**Components built:**
-- Process detector (heuristic for active state)
-- Statusline entry point (stdin JSON → stdout)
-- Formatter (ANSI colors, command-style)
-
-**Verification:** Test with rapid successive API calls (verify cooldown), test with non-AI commands (verify no false triggers), test prompt length fits 80-char terminal.
-
-**Research flag:** Process detection heuristic LOW confidence—requires empirical validation with real Claude Code sessions to tune threshold.
-
-### Phase 3: GSD Coexistence
-**Rationale:** VibeRipped must display alongside existing GSD statusline without crosstalk. This requires orchestrator pattern since Claude Code only runs ONE statusline script.
-
-**Delivers:** Unified statusline showing both GSD output (task, directory) and VibeRipped output (exercise prompt) separated by `│` delimiter.
-
-**Addresses:**
-- Statusline integration (coexistence requirement)
-
-**Avoids:**
-- Statusline race condition (critical pitfall #1) via orchestrator coordination
-
-**Components built:**
-- Modularize GSD statusline (extract logic to module)
-- Modularize VibeRipped statusline (export `generate(data)` function)
-- Orchestrator script (call both, concatenate outputs)
-- Update settings.json to use orchestrator
-
-**Verification:** Run two Claude Code instances simultaneously, verify no crosstalk/flicker.
-
-### Phase 4: Configuration & Polish
-**Rationale:** Production-ready installation experience. Users need tooling to set up equipment, validate pool, handle errors gracefully.
-
-**Delivers:** CLI commands for setup and management: `vibripped config --kettlebell --dumbbells`, `vibripped pool add "Squats x20"`, `vibripped status`
-
-**Addresses:**
-- Rotation state persistence (should-have)
-- Rep count calibration (should-have)
-
-**Components built:**
-- CLI for equipment setup
-- Pool editing commands
-- Validation (missing equipment declarations prompt setup)
-- Error handling (missing state file, corrupt JSON)
-- Dry-run mode for testing without state changes
-
-**Verification:** Delete state file mid-session (verify recovery), provide invalid JSON config (verify error message), run `--dry-run` (verify no state changes).
+### Phase 7: Detection Improvement
+**Rationale:** Highest risk (undocumented stdin structure), can ship independently of other features.
+**Delivers:** Improved statusline trigger heuristic, reduced false positives
+**Addresses:** Differentiator (detection accuracy)
+**Avoids:** Pitfall #7 (heuristic thrashing) via configurable threshold
+**Research flag:** Phase research needed (Claude Code statusline JSON structure, live testing required)
 
 ### Phase Ordering Rationale
 
-- **Phase 1 before Phase 2:** Rotation logic must work standalone before adding statusline complexity. Testing is easier with CLI tool.
-- **Phase 2 before Phase 3:** VibeRipped statusline must work solo before attempting GSD integration.
-- **Phase 3 before Phase 4:** Coexistence is blocking for adoption (users already have GSD), but polish can ship incrementally.
-- **Phase 4 can run parallel to Phase 3:** Config tooling is independent of GSD integration.
+- **Foundation first:** npm distribution blocks nothing, establishes release channel
+- **Schema batch:** All data model changes in Phase 2 minimizes migration points
+- **Simple to complex:** Timed exercises (simple) validates schema before category rotation (complex)
+- **Independent features parallel:** Environment profiles and category rotation can develop in parallel after Phase 2
+- **Interactive last:** Setup wizard depends on stable schemas, can ship after other features
+- **Detection separate:** Highest risk, doesn't block other features, can iterate independently
 
-**Grouping logic:** Phase 1 = "core logic," Phase 2 = "Claude integration," Phase 3 = "ecosystem integration," Phase 4 = "user experience."
-
-**Pitfall avoidance:** Critical pitfalls addressed in Phases 1-2 (state corruption, over-triggering, process detection). Moderate pitfalls in Phase 4 (configuration UX). This front-loads risk mitigation.
+**Alternative approach:** Phases 3 and 4 can be swapped (timed exercises vs environment profiles) without dependency issues.
 
 ### Research Flags
 
 **Phases needing deeper research during planning:**
-- **Phase 2 (Statusline Integration):** Process detection heuristic LOW confidence—stdin JSON schema doesn't expose "is processing" flag. Need to experiment with `context_window.current_usage` deltas and `cost.total_api_duration_ms` thresholds to find reliable trigger pattern. Allocate time for empirical testing with real Claude sessions.
+- **Phase 5 (Category Rotation):** Weighted selection algorithm edge cases, test with extreme pool distributions (1 vs 50 exercises), determinism verification
+- **Phase 7 (Detection Improvement):** Claude Code statusline JSON structure investigation, live testing with real sessions, threshold calibration
 
 **Phases with standard patterns (skip research-phase):**
-- **Phase 1 (Core Rotation):** Well-documented patterns for file-based state, sequential rotation, JSON config. No novel ground.
-- **Phase 3 (GSD Coexistence):** Orchestrator pattern is standard (verified via existing GSD statusline code). Straightforward module extraction + concatenation.
-- **Phase 4 (Configuration & Polish):** CLI tooling patterns well-established (arg parsing, validation, error messages).
+- **Phase 1 (Distribution):** Standard npm packaging workflow
+- **Phase 2 (Data Models):** Schema extension with backward compatibility is established pattern
+- **Phase 3 (Timed Exercises):** Straightforward display logic, type discrimination
+- **Phase 4 (Environment Profiles):** Extends existing config pattern
+- **Phase 6 (Interactive UX):** prompts library well-documented, checkbox examples abundant
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Bash + jq verified via official Claude Code docs and 60%+ community adoption. File-based state is universal pattern. |
-| Features | MEDIUM-HIGH | Feature prioritization based on exercise reminder research, developer productivity studies, and habit formation literature. MVP scope validated against competitor analysis. |
-| Architecture | HIGH | Single entry point pattern verified via official docs and direct examination of existing GSD statusline. Component boundaries follow standard modularity practices. |
-| Pitfalls | MEDIUM-HIGH | Critical pitfalls validated via official issue tracker (race condition), notification fatigue research, and community statusline postmortems. Process detection is LOW confidence area. |
+| Stack | HIGH | Official Node.js docs verified --env-file support, prompts library verified (4M+ downloads/week), Commander.js existing |
+| Features | HIGH | Multiple sources confirm table stakes (npm install, setup wizard, category rotation), anti-features validated against fitness app patterns |
+| Architecture | HIGH | Integration patterns match v1.0 established structure, backward compatibility approach verified with migration examples |
+| Pitfalls | HIGH | npm bin permissions, stdin pipe conflicts, config migration all verified with official docs and community sources |
 
-**Overall confidence:** MEDIUM-HIGH
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-**Process detection heuristic (LOW confidence):** Claude Code's stdin JSON schema doesn't include explicit "is processing" flag. Heuristic options exist (`context_window.current_usage` non-null, `cost.total_api_duration_ms` delta), but optimal threshold is unknown. **Mitigation:** Allocate Phase 2 time for empirical testing; start with simple strategy (usage non-null), tune based on user feedback; consider making threshold configurable as escape hatch.
+**Detection heuristic structure (MEDIUM risk):**
+- Gap: Claude Code statusline JSON structure is undocumented
+- How to handle: Phase 7 research-phase to investigate stdin JSON schema, live testing in real Claude Code session
+- Fallback: If no clear signal exists, keep v1.0 heuristic and defer to v1.2
 
-**Multi-instance state conflicts (MEDIUM confidence):** File-based state may race if user runs multiple Claude Code sessions simultaneously. Research suggests atomic write-rename mitigates, but concurrent read-modify-write remains edge case. **Mitigation:** Implement optimistic locking (timestamp check before write) or accept race as low-probability (statusline updates debounced 300ms, unlikely to overlap). Document limitation if unresolved.
+**Category rotation weighting formula (LOW risk):**
+- Gap: Optimal weighting balance between "fair" and "proportional"
+- How to handle: Phase 5 research-phase to test extreme distributions (1 vs 50 exercises), simulation testing
+- Fallback: Start with proportional (category.length / total), add user override in config if needed
 
-**Duration-aware prompts (DEFERRED):** Feature requires latency duration measurement, but stdin JSON doesn't expose call duration directly (only cumulative `total_api_duration_ms`). Tracking deltas is feasible but adds complexity. **Mitigation:** Defer to v1.x; validate core concept first (static prompts), add duration-awareness once proven useful.
+**Timed exercise scaling bounds (LOW risk):**
+- Gap: How much to scale duration-based exercises (latency factor)
+- How to handle: Cap timed exercise multiplier at 1.5x max during Phase 3 implementation
+- Fallback: Use same latency scaling as reps, users can override in pool if excessive
 
-**Exercise pool size validation (MINOR):** What's the minimum pool size for determinism to feel good? 5 exercises? 10? 20? Research doesn't answer this—depends on rotation frequency and user tolerance for repetition. **Mitigation:** Default pool starts at 10 exercises, documentation suggests 8-15 range, users can customize via transparent JSON files.
+**Cross-platform bin permissions (LOW risk):**
+- Gap: Windows doesn't preserve executable bit in git
+- How to handle: Use `git update-index --chmod=+x`, add CI test for Unix install
+- Fallback: Document manual chmod for users who hit issue
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [Claude Code Statusline Documentation](https://code.claude.com/docs/en/statusline) — Official specification: stdin JSON schema, execution model, update triggers, output formatting, debouncing (300ms), cancellation policy
-- [Claude Code Settings Documentation](https://code.claude.com/docs/en/settings) — Configuration hierarchy, settings.json structure, file locations, scoping rules
-- Direct examination of `~/.claude/hooks/gsd-statusline.js` — Real-world statusline implementation pattern, entry point structure, stdin handling
-- [GitHub Issue #15226: Status Bar Crosstalk](https://github.com/anthropics/claude-code/issues/15226) — Official confirmation of Last Write Wins race condition between providers
+
+**Official Documentation:**
+- [Node.js Readline Documentation](https://nodejs.org/api/readline.html) — Verified promises API, raw mode, keypress events
+- [Node.js Timers Documentation](https://nodejs.org/api/timers.html) — Verified setInterval API
+- [npm scripts lifecycle documentation](https://docs.npmjs.com/cli/v8/using-npm/scripts/) — Verified prepublishOnly vs prepare behavior
+- [npm files field best practices](https://github.com/npm/cli/wiki/Files-&-Ignores) — Verified files field precedence
+- [package.json bin field documentation](https://docs.npmjs.com/cli/v8/configuring-npm/package-json/) — Verified bin script configuration
+- [Commander.js GitHub](https://github.com/tj/commander.js) — Verified v14.0.3 API
+- [prompts GitHub Repository](https://github.com/terkelg/prompts) — Verified v2.4.2 features, dependencies
+- [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/latest/) — Verified XDG_CONFIG_HOME conventions
+
+**Stack Research:**
+- Node.js --env-file support (v20.6.0+) eliminates dotenv dependency
+- prompts vs @inquirer/prompts comparison (prompts chosen for lightweight)
+- Zero-dependency philosophy analysis (pragmatic break for interactive UX justified)
+
+**Features Research:**
+- Interactive terminal wizard patterns (Commander + Inquirer standard)
+- Category rotation patterns (Push/Pull/Legs split, 48-72hr recovery)
+- Timed vs rep-based exercises (isometric holds vs dynamic movements)
+- Environment profiles (XDG Base Directory, file-based config patterns)
+- npm distribution patterns (trusted publishing, bin scripts, SemVer)
+
+**Architecture Research:**
+- npm packaging integration (metadata-only, zero code changes)
+- Interactive prompts integration (CLI layer isolation, TTY detection)
+- Category rotation integration (weighted selection, state extension)
+- Timed exercises integration (type discrimination, display logic)
+- Environment profiles integration (config extension, pool filtering)
+- Detection improvement integration (heuristic replacement, cost.total_api_duration_ms)
+
+**Pitfalls Research:**
+- NPM bin permissions (shebang, chmod +x, git update-index)
+- Interactive prompts breaking stdin pipe (process.stdin.isTTY detection)
+- Commander.js action handler context (use parameters, not this.opts())
+- Category rotation bias (weighted selection by pool size)
+- Config migration (version field, auto-detect, backup)
+- Detection heuristic thrashing (configurable threshold, dry-run mode)
+- npm lifecycle script confusion (prepublishOnly for publish, not prepare)
+- XDG path migration (detect old path, auto-migrate, backup)
 
 ### Secondary (MEDIUM confidence)
-- [ccstatusline](https://github.com/sirmalloc/ccstatusline) — TypeScript + React/Ink reference implementation, XDG config pattern, 100+ dependencies (validates "complex statusline" stack)
-- [rz1989s/claude-code-statusline](https://github.com/rz1989s/claude-code-statusline) — Bash implementation, 18-component modular architecture, SHA-256 caching pattern
-- [How to Reduce Notification Fatigue](https://www.courier.com/blog/how-to-reduce-notification-fatigue-7-proven-product-strategies-for-saas) — SaaS research: 43% lower opt-out with user controls, 2-3/week threshold for non-opted-in notifications
-- [Understanding Gamification Fatigue](https://www.sciencedirect.com/science/article/abs/pii/S1567422324000140) — Academic research: badge complexity → burnout → app abandonment
-- [Motivational Message Framing Effects](https://pmc.ncbi.nlm.nih.gov/articles/PMC10163402/) — Fitness messaging research: motivational language generates short-term interest but fails sustained action; command-style prompts reduce cognitive load
-- [Why Exercise at Work: OEBD Scale](https://pmc.ncbi.nlm.nih.gov/articles/PMC7967457/) — Academic research: intrinsic motivation + social environment factors; peer observation anxiety; gradual progress emphasis
+
+- [Muscle group rotation importance](https://lipsticklifters.com/articles/the-importance-of-muscle-group-rotation/) — Category rotation patterns
+- [DigitalOcean interactive CLI tutorial](https://www.digitalocean.com/community/tutorials/nodejs-interactive-command-line-prompts) — Inquirer.js integration
+- [Best practices for publishing npm package](https://mikbry.com/blog/javascript/npm/best-practices-npm-package) — npm publishing workflow
+- [Databricks CLI profiles](https://docs.databricks.com/aws/en/dev-tools/cli/profiles) — Profile configuration patterns
 
 ### Tertiary (LOW confidence)
-- [Build Times and Developer Productivity](https://www.linkedin.com/pulse/build-times-developer-productivity-abi-noda) — Anecdotal: developers context-switch around 45-second threshold (supports latency-coupling hypothesis but not rigorously validated)
-- [Claude Chill: Fix Flickering](https://news.ycombinator.com/item?id=46699072) — HN discussion: DEC mode 2026 synchronized output eliminates flicker (future mitigation for race condition)
+
+- Fitness app UX patterns (Fitbod, Hevy, Samsung Health) — Category rotation and timer UX
+- Workout detection patterns (Motra, Apple Watch) — Detection heuristic insights
+- CLI tool examples (Statsig wizard, Temporal CLI) — Interactive onboarding patterns
 
 ---
-*Research completed: 2026-02-08*
+*Research completed: 2026-02-09*
 *Ready for roadmap: yes*

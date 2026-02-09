@@ -1,197 +1,349 @@
-# Technology Stack
+# Stack Research: v1.1 Features
 
-**Project:** VibeRipped
-**Researched:** 2026-02-08
+**Domain:** CLI Exercise Rotation App - v1.1 Feature Additions
+**Researched:** 2026-02-09
 **Confidence:** HIGH
+
+## Context
+
+VibeRipped v1.0 ships with: Node.js runtime, Commander.js CLI, built-in test runner (node:test), ANSI escape codes, bash orchestrator, atomic write-rename state, SHA256 hashing, XDG Base Directory storage. Zero external deps besides Commander.js and write-file-atomic.
+
+This research covers ONLY the stack additions needed for v1.1 features:
+- npm packaging and distribution
+- Interactive terminal prompts (checkboxes, multi-select)
+- Category-aware exercise rotation (logic only)
+- Timed exercise display
+- Environment profiles
 
 ## Recommended Stack
 
-### Core Runtime & Language
+### Core Technologies (No Changes)
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| Bash | 4.0+ | Script runtime | Native statusline language. Officially documented, zero installation, maximum compatibility. All official examples use Bash. Works identically on macOS/Linux; Windows via WSL. |
-| jq | 1.6+ | JSON parsing | Standard tool for parsing Claude Code's stdin JSON. Used in all official documentation examples. Fast, lightweight, ubiquitous on Unix systems. |
+| Node.js | 20.6.0+ | Runtime environment | v20.6.0+ adds native .env file support, eliminating dotenv dependency for environment profiles |
+| Commander.js | ^14.0.3 | CLI argument parsing | Already in use (v1.0); handles option parsing, subcommands, help generation. No interactive prompt features built-in |
+| write-file-atomic | ^7.0.0 | Atomic state writes | Already in use (v1.0); maintains existing transactional state update pattern |
 
-**Rationale:** Bash is the **de facto standard** for Claude Code statusline scripts. The official documentation uses Bash for all examples, community adoption is 60%+ Bash, and it requires zero dependencies beyond `jq` which is universally available via system package managers.
+### New Dependencies for v1.1
 
-**Confidence:** HIGH - Verified via official Claude Code documentation at https://code.claude.com/docs/en/statusline
-
-### Alternative Runtimes (Not Recommended for This Project)
-
-| Technology | Version | Purpose | Why NOT Recommended |
-|------------|---------|---------|---------------------|
-| TypeScript/Node.js | 18+ | Complex statuslines with React/Ink TUI | Overkill for VibeRipped's simple state (rotation index, timestamp). Used by ccstatusline for interactive configuration UI, but adds 100+ dependencies and compilation step. |
-| Python | 3.8+ | When team prefers Python | Valid alternative with builtin JSON parsing, but requires explicit shebang and Python installation verification. No advantage for simple string formatting. |
-| Ruby | 2.7+ | When team prefers Ruby | Used by gabriel-dehan/claude_monitor_statusline, but Ruby is less common than Bash/Python in 2026 ecosystem. |
-
-### State Persistence
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Filesystem (flat files) | N/A | Persist rotation index, cooldown timestamp | Standard pattern: write to `~/.claude/.viberipped-state` or `/tmp/viberipped-state-$UID`. Simple, atomic writes via shell redirection. No database needed. |
-| JSON format | N/A | State file format | Use jq for atomic read/write. Format: `{"rotation_index":5,"last_cooldown_ts":1738972800}` |
-
-**Rationale:** File-based persistence is the **universal pattern** across all community statusline implementations. Examples:
-- ccstatusline: `~/.config/ccstatusline/settings.json`
-- rz1989s/claude-code-statusline: XDG-compliant cache directories with SHA-256 checksums
-- Official caching example: `/tmp/statusline-git-cache`
-
-For VibeRipped's minimal state (two integers), a single JSON file is sufficient. No need for SQLite, Redis, or databases.
-
-**Confidence:** HIGH - Pattern verified across official docs and 8+ community implementations
-
-### Configuration
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| JSON (Claude Code settings.json) | N/A | Equipment configuration | Standard Claude Code configuration mechanism. Add equipment list to `~/.claude/settings.json` under custom key like `viberipped.equipment: ["kettlebell", "dumbbells"]` |
-| Environment variables | N/A | Optional runtime config | Pattern used by claude_monitor_statusline for `VIBERIPPED_EQUIPMENT`, `VIBERIPPED_COOLDOWN_SEC`. Good for per-session overrides without editing settings.json. |
-
-**Configuration file location:** `~/.claude/settings.json` (global) or `.claude/settings.local.json` (project-specific, not committed)
-
-**Rationale:** Claude Code's settings.json is the **canonical configuration mechanism**. It supports hierarchical scoping (managed policy > global > project > local), automatic reload, and team sharing via source control.
-
-Environment variables are a **secondary pattern** for runtime overrides without file edits. Used by multiple community implementations for display modes and feature flags.
-
-**Confidence:** HIGH - Verified via official settings documentation at https://code.claude.com/docs/en/settings
-
-### Supporting Libraries
-
-| Library | Version | Purpose | When to Use |
+| Library | Version | Purpose | Why Recommended |
 |---------|---------|---------|-------------|
-| None required | N/A | N/A | Pure Bash + jq is sufficient for VibeRipped's requirements |
+| prompts | ^2.4.2 | Interactive terminal prompts | Lightweight (187 kB), only 2 dependencies (kleur, sisteransi). Supports checkbox, multiselect, confirm, input. Battle-tested (4M+ downloads/week). Alternative: @inquirer/prompts (more features, more deps) |
 
-**Note:** Advanced statuslines use additional tools:
-- `curl` - API calls (ccusage, rz1989s for rate limit checking)
-- `git` - Branch/status display (standard pattern, but NOT needed for VibeRipped)
-- React/Ink - Interactive TUI configuration (ccstatusline only, massive overkill)
+### What Does NOT Need Dependencies
 
-VibeRipped does NOT need any of these. The exercise rotation logic is pure string manipulation.
+| Feature | Implementation | Why No Dependency |
+|---------|----------------|-------------------|
+| Timer display | Node.js built-ins: setInterval + process.stdout.write + ANSI escape codes | Already validated ANSI escape code patterns in v1.0. Timer is just cursor positioning + time formatting |
+| Environment profiles | Node.js --env-file flag (v20.6.0+) or process.env | Native Node.js feature as of v20.6.0. No runtime dependency |
+| Category-aware rotation | Pure algorithm logic | Extends existing deterministic rotation engine. State management only |
+| npm packaging | package.json configuration | Native npm feature. Just configuration, no dependencies |
+
+### Development Tools
+
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| npm pack | Preview package before publish | Generates tarball to verify files field includes correct artifacts |
+| node:test | Test runner | Already in use (v1.0); no changes needed |
+| prepublishOnly | Pre-publish validation | Run tests before npm publish only (not on install) |
 
 ## Installation
 
 ```bash
-# Prerequisites (likely already installed)
-# macOS
-brew install jq
+# New runtime dependency for interactive prompts
+npm install prompts
 
-# Ubuntu/Debian
-apt-get install jq
-
-# Fedora/RHEL
-dnf install jq
-
-# Verify
-jq --version  # Should output: jq-1.6 or newer
+# No other dependencies required
+# Timer, env profiles, category rotation use built-ins
 ```
 
 ## Alternatives Considered
 
-| Category | Recommended | Alternative | Why Not Alternative |
-|----------|-------------|-------------|---------------------|
-| Runtime | Bash | TypeScript + Node.js + React/Ink | 100+ npm dependencies, build step, startup overhead (50-200ms). Bash starts in <5ms. VibeRipped's logic is 50 lines max—TS adds complexity without benefit. |
-| Runtime | Bash | Python | Valid choice, but Bash has better official documentation coverage and zero installation on target systems. Python requires explicit version management. |
-| JSON parsing | jq | Node.js builtin JSON | Node's async stdin reading (20+ lines of boilerplate) vs. jq's one-liner: `jq -r '.field'`. For simple field extraction, jq wins. |
-| State storage | Flat file | SQLite | SQLite requires library (`sqlite3` binary or language bindings). For 2 integers, flat file is faster and simpler. |
-| State storage | Flat file | Redis/memcached | Requires separate service. Massive overkill for single-user local script. |
-| Config format | JSON | TOML/YAML | JSON is Claude Code's native format. Adding TOML parser (requires external tool) breaks consistency. |
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| prompts | @inquirer/prompts | If you need more complex prompt types (editor, password with masking, expand). Inquirer v10+ is modern API but has more dependencies |
+| prompts | Build with node:readline/promises + raw mode | If zero-dependency philosophy is absolute requirement. Requires ~200 LOC to replicate checkbox/multi-select UX (keypress handling, cursor positioning, ANSI rendering) |
+| Node.js --env-file | dotenv package | Only if you need to support Node.js <20.6.0 in production. Not needed for v1.1 (require v20.6.0+) |
+| Built-in timer | console-countdown npm | Only if you need Pomodoro-specific features or desktop notifications. Built-in approach sufficient for exercise timer display |
 
 ## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| Python `input()` or interactive prompts | Statusline scripts receive JSON on stdin and must output immediately. Prompts block forever—Claude Code kills the script after timeout. | Read configuration from settings.json or environment variables |
-| Slow commands (`git status` on large repos) | Statusline runs after every assistant message (debounced 300ms). Slow commands lag the UI. | Cache results (official caching pattern: `/tmp/statusline-git-cache` with 5-second TTL) |
-| ANSI escape codes without testing | Complex escape sequences can cause rendering glitches when overlapping with Claude Code's UI updates. Multi-line + colors = higher risk. | Test thoroughly; prefer single-line plain text for reliability |
-| Process-based state (e.g., `$$`, `process.pid`) | Each statusline invocation is a NEW process. Process-local variables are lost immediately. | Use filesystem persistence with stable filenames |
-| `/tmp/statusline-$$.cache` | `$$` is different on every invocation—cache is never reused, defeating the purpose. | Use fixed filename: `/tmp/statusline-viberipped` or `~/.claude/.viberipped-state` |
+| inquirer (legacy v9.x) | Deprecated API, larger bundle size, more dependencies than needed | @inquirer/prompts (modern API) or prompts (lightweight) |
+| dotenv | Node.js v20.6.0+ has native --env-file support | Node.js --env-file flag or process.env (already available) |
+| chalk/kleur (standalone) | Adds dependency for ANSI colors you already handle with escape codes | Continue using ANSI escape codes directly (validated in v1.0) |
+| readline-sync | Blocking/synchronous I/O, doesn't support modern async patterns | prompts or node:readline/promises |
+| commander-interactive | Wrapper around Commander.js + Inquirer.js; adds unnecessary abstraction layer | Use Commander.js + prompts directly for explicit control |
 
-## Stack Patterns by Variant
+## Stack Patterns by Feature
 
-**If building a simple statusline (like VibeRipped):**
-- Runtime: Bash
-- JSON parsing: jq
-- State: Single JSON file in `~/.claude/` or `/tmp/`
-- Config: settings.json with optional environment variable overrides
-- Total dependencies: 1 (jq)
-- Script size: 50-100 lines
-- Startup time: <5ms
+### Interactive Equipment Configuration
 
-**If building a complex statusline with interactive configuration UI:**
-- Runtime: TypeScript + Node.js + Bun (for speed)
-- Framework: React + Ink (terminal UI)
-- State: XDG-compliant config directory (`~/.config/statusline/`)
-- Config: JSON with interactive setup wizard
-- Total dependencies: 100+ npm packages
-- Script size: 1000+ lines
-- Startup time: 50-200ms
-- Example: ccstatusline (https://github.com/sirmalloc/ccstatusline)
+**Implementation:**
+- Use prompts `checkbox` type for multi-select equipment flags
+- Replace current `--kettlebell` boolean options with single interactive prompt
+- Maintain Commander.js for non-interactive mode (CI/scripting)
 
-**If team already uses Python everywhere:**
-- Runtime: Python 3.8+
-- JSON parsing: builtin `json` module
-- State: Same flat-file approach
-- Config: Same settings.json approach
-- Tradeoff: Python startup slower than Bash (20-50ms vs. <5ms), but negligible for statusline use case
+**Code pattern:**
+```javascript
+// Add interactive fallback to existing config command
+program
+  .command('config')
+  .option('--interactive', 'Interactive equipment selection')
+  .option('--kettlebell', 'Enable kettlebell exercises')
+  // ... existing options
+  .action(async (options) => {
+    if (options.interactive) {
+      const prompts = require('prompts');
+      const response = await prompts({
+        type: 'multiselect',
+        name: 'equipment',
+        message: 'Select available equipment:',
+        choices: [
+          { title: 'Kettlebell', value: 'kettlebell' },
+          { title: 'Dumbbells', value: 'dumbbells' },
+          { title: 'Pull-up Bar', value: 'pullUpBar' },
+          { title: 'Parallettes', value: 'parallettes' }
+        ]
+      });
+      // Map to existing config handler
+    }
+    // Existing CLI path
+  });
+```
 
-## Technical Constraints from Claude Code
+### Timed Exercise Display
 
-Based on official documentation, statusline scripts must adhere to these constraints:
+**Implementation:**
+- Use setInterval(updateFn, 1000) for countdown logic
+- Use process.stdout.write() + ANSI escape codes for cursor positioning (already validated)
+- Format: `MM:SS` with padStart
 
-**Execution Model:**
-- Script receives JSON on stdin (one-shot, not streaming)
-- Script must output to stdout (NOT stderr)
-- Output is displayed verbatim—each line becomes a statusline row
-- Script is killed if it exceeds internal timeout (not documented, but implied by "in-flight execution is cancelled")
+**Code pattern:**
+```javascript
+// Extend existing ANSI escape code patterns from v1.0
+const ANSI = {
+  CURSOR_UP: '\x1b[1A',
+  CURSOR_TO_START: '\r',
+  CLEAR_LINE: '\x1b[2K',
+  // ... existing codes
+};
 
-**Update Triggers:**
-- Runs after each assistant message
-- Runs when permission mode changes
-- Runs when vim mode toggles
-- Updates debounced at 300ms
-- If new trigger fires while script running, in-flight execution is cancelled
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const secs = (seconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+}
 
-**Data Available:**
-- Full JSON schema documented at https://code.claude.com/docs/en/statusline
-- Key fields: `model.display_name`, `context_window.used_percentage`, `cost.total_cost_usd`, `workspace.current_dir`
-- **CRITICAL LIMITATION:** No field indicates "API call in flight" or "model processing"
+function displayTimer(seconds) {
+  const formatted = formatTime(seconds);
+  process.stdout.write(ANSI.CURSOR_TO_START + ANSI.CLEAR_LINE + `Time: ${formatted}`);
+}
 
-**Processing State Detection:**
-The official JSON schema does NOT include a field for "API call in flight" or "processing state". The statusline script runs **after** each assistant message, meaning it executes when processing is COMPLETE, not during.
+// Usage
+let remaining = 30; // 30 seconds
+const timer = setInterval(() => {
+  displayTimer(remaining);
+  remaining--;
+  if (remaining < 0) {
+    clearInterval(timer);
+    console.log('\nComplete!');
+  }
+}, 1000);
+```
 
-**Implication for VibeRipped:** The original requirement states "When Claude Code is actively processing (model call in flight), the statusline emits exactly one movement instruction." However, the statusline API does NOT provide real-time processing state.
+### Environment Profiles
 
-**Workaround options:**
-1. **Emit exercise on every update** - Since statusline runs after each message, treat each invocation as "processing just completed, here's your exercise"
-2. **Time-based cooldown** - Emit exercise only if N seconds have elapsed since last exercise (prevents spam during rapid back-and-forth)
-3. **Token-delta trigger** - Emit exercise when `context_window.total_output_tokens` increases by threshold amount
+**Implementation:**
+- Store profiles as .env.home, .env.gym, .env.travel
+- Use Node.js --env-file flag at invocation
+- No runtime dependency required
 
-**Confidence:** HIGH - Processing state limitation verified via official JSON schema
+**Usage:**
+```bash
+# No code changes needed; use at invocation
+node --env-file=.env.gym bin/vibripped.js next
+node --env-file=.env.home bin/vibripped.js next
+```
+
+**Profile format (.env.gym example):**
+```bash
+VIBERIPPED_KETTLEBELL=true
+VIBERIPPED_DUMBBELLS=true
+VIBERIPPED_PULL_UP_BAR=true
+VIBERIPPED_PARALLETTES=false
+```
+
+**Code reads from process.env:**
+```javascript
+const hasKettlebell = process.env.VIBERIPPED_KETTLEBELL === 'true';
+```
+
+### Category-Aware Rotation
+
+**Implementation:**
+- Pure state management logic in existing rotation engine
+- No new dependencies; extend existing deterministic rotation algorithm
+- Add category field to exercise definitions
+- Track last-used category in state file
+
+**Code pattern:**
+```javascript
+// Extend existing rotation state
+const state = {
+  rotationIndex: 5,
+  lastExerciseTimestamp: 1738972800,
+  lastCategory: 'upper-body', // NEW
+  categoryHistory: ['upper-body', 'lower-body'] // NEW (optional)
+};
+
+// Filter exercises by category for rotation
+function selectNextExercise(exercises, state) {
+  const availableCategories = [...new Set(exercises.map(e => e.category))];
+  const nextCategory = availableCategories.find(c => c !== state.lastCategory);
+  const categoryExercises = exercises.filter(e => e.category === nextCategory);
+  // ... existing rotation logic
+}
+```
+
+## npm Publishing Configuration
+
+### package.json additions for v1.1:
+
+```json
+{
+  "name": "viberipped",
+  "version": "1.1.0",
+  "files": [
+    "bin/",
+    "lib/",
+    "engine.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "prepublishOnly": "npm test",
+    "prepack": "npm test"
+  }
+}
+```
+
+**Rationale:**
+- `files` field: Explicit whitelist prevents accidental inclusion of .planning/, test fixtures, .env files
+- `engines`: Enforces Node.js 20.6.0+ for --env-file support
+- `prepublishOnly`: Ensures tests pass before publish (doesn't run on install)
+- `prepack`: Safety net for local testing with `npm pack`
+
+**Why files field over .npmignore:**
+- files field is a whitelist (explicit, safer)
+- .npmignore is a blacklist (easy to miss sensitive files)
+- files field has precedence over .npmignore
+- Recommended by npm best practices 2026
 
 ## Version Compatibility
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| Bash 4.0+ | macOS (Bash 3.2 via `/bin/bash`, Bash 5.x via Homebrew), Linux (4.0+), Windows WSL (5.0+) | macOS ships Bash 3.2 due to GPLv3 licensing. For VibeRipped, 3.2 is sufficient (no associative arrays needed). |
-| jq 1.6+ | All platforms | Current stable: 1.7 (2023-09-06). 1.6 widely deployed. No breaking changes relevant to statusline use case. |
+| Package A | Compatible With | Notes |
+|-----------|-----------------|-------|
+| prompts@2.4.2 | Node.js 14+ | Requires Node.js 14 or higher; v1.0 already uses Node.js built-ins that require 16+ |
+| Commander.js@14.0.3 | prompts@2.4.2 | No conflicts; Commander.js handles argv parsing, prompts handles interactive fallback |
+| Node.js 20.6.0+ --env-file | All dependencies | Native flag, no package compatibility concerns |
+
+## Zero-Dependency Philosophy Analysis
+
+### Where we're maintaining it:
+- Timer display: Built-in setInterval + process.stdout.write + ANSI
+- Environment profiles: Built-in --env-file flag (Node.js 20.6.0+)
+- Category rotation: Pure algorithm logic
+- State management: Existing write-file-atomic (already a dependency)
+
+### Where we're pragmatically breaking it:
+- Interactive prompts: prompts package (187 kB, 2 dependencies)
+
+### Rationale for prompts dependency:
+
+Implementing checkbox/multi-select from scratch requires:
+- Raw mode stdin handling (process.stdin.setRawMode)
+- Keypress event parsing (arrow keys, space, enter, ctrl sequences)
+- ANSI cursor positioning and line management
+- Selection state tracking and visual rendering
+- Edge case handling (terminal resize, interrupted input)
+
+This is ~200-300 LOC of non-trivial terminal manipulation code. The prompts package:
+- Provides battle-tested UX (used by 4M+ downloads/week)
+- Only 2 dependencies (kleur for colors, sisteransi for ANSI)
+- Total size 187 kB (negligible for CLI app)
+- Actively maintained
+- Provides consistent UX across platforms
+
+**Trade-off:** Adding 1 dependency with 2 transitive dependencies for professional-grade interactive UX is justified given the LOC and complexity savings.
+
+**Alternative if zero-dependency is ABSOLUTE:**
+Use node:readline/promises + raw mode + manual keypress parsing. Estimated 200-300 LOC. Example complexity:
+```javascript
+const readline = require('readline');
+readline.emitKeypressEvents(process.stdin);
+if (process.stdin.isTTY) {
+  process.stdin.setRawMode(true);
+}
+process.stdin.on('keypress', (str, key) => {
+  if (key.name === 'up') { /* move cursor up */ }
+  if (key.name === 'down') { /* move cursor down */ }
+  if (key.name === 'space') { /* toggle selection */ }
+  if (key.name === 'return') { /* submit */ }
+  // ... ANSI rendering logic
+});
+```
+
+Not recommended unless there's a strong philosophical requirement.
+
+## Integration Points with Existing v1.0 Stack
+
+### Commander.js Integration
+- Add `--interactive` flag to existing `config` command
+- Prompts only runs when flag present
+- Existing boolean flags (`--kettlebell`, `--no-kettlebell`) continue to work
+- Non-interactive mode preserved for CI/scripting
+
+### ANSI Escape Code Reuse
+- v1.0 already validates ANSI escape codes for statusline output
+- Timer display reuses same cursor positioning patterns
+- No new validation needed
+
+### State File Extension
+- v1.0 uses write-file-atomic for transactional writes
+- v1.1 adds category fields to existing state structure
+- No breaking changes to file format (add optional fields)
+
+### XDG Base Directory
+- v1.0 already uses XDG Base Directory spec
+- Environment profile files live in same directory structure
+- No new directory conventions needed
 
 ## Sources
 
 **Official Documentation (HIGH confidence):**
-- [Customize your status line - Claude Code Docs](https://code.claude.com/docs/en/statusline) - Complete technical specification, JSON schema, execution model, examples
-- [Claude Code settings - Claude Code Docs](https://code.claude.com/docs/en/settings) - Configuration hierarchy, settings.json structure, file locations
+- [Node.js Readline Documentation](https://nodejs.org/api/readline.html) — Verified promises API, raw mode, keypress events
+- [Node.js Timers Documentation](https://nodejs.org/api/timers.html) — Verified setInterval API
+- [npm scripts lifecycle documentation](https://docs.npmjs.com/cli/v8/using-npm/scripts/) — Verified prepublishOnly vs prepare behavior
+- [npm files field best practices](https://github.com/npm/cli/wiki/Files-&-Ignores) — Verified files field precedence over .npmignore
 
-**Community Implementations (MEDIUM-HIGH confidence):**
-- [ccstatusline](https://github.com/sirmalloc/ccstatusline) - TypeScript + React/Ink, XDG config, 100+ dependencies
-- [claude_monitor_statusline](https://github.com/gabriel-dehan/claude_monitor_statusline) - Ruby, environment variable config
-- [rz1989s/claude-code-statusline](https://github.com/rz1989s/claude-code-statusline) - Bash, 18-component modular architecture, XDG caching with SHA-256 integrity
+**Library Documentation (HIGH confidence):**
+- [prompts GitHub Repository](https://github.com/terkelg/prompts) — Verified v2.4.2 features, dependencies, checkbox/multiselect support
+- [Commander.js GitHub](https://github.com/tj/commander.js) — Verified v14.0.3 current, no interactive prompts
 
-**Blog Posts & Tutorials (MEDIUM confidence):**
-- [Creating The Perfect Claude Code Status Line](https://www.aihero.dev/creating-the-perfect-claude-code-status-line) - Community patterns
-- [Leveling Up Claude Code with a Killer Statusline](https://jeradbitner.com/blog/claude-code-statusline) - Real-world usage examples
+**Community Resources (MEDIUM-HIGH confidence):**
+- [@inquirer/prompts npm](https://www.npmjs.com/package/@inquirer/prompts) — Compared alternatives, verified modern API rewrite
+- [npm trends: prompts vs inquirer](https://npmtrends.com/enquirer-vs-inquirer-vs-prompt-vs-prompts) — Usage statistics, comparison
+- [Node.js --env-file Support](https://infisical.com/blog/stop-using-dotenv-in-nodejs-v20.6.0+) — Verified native .env support in v20.6.0+
+- [Best practices for publishing your npm package](https://mikbry.com/blog/javascript/npm/best-practices-npm-package) — npm publishing patterns
 
 ---
-*Stack research for: Claude Code statusline provider (VibeRipped micro-exercise rotation system)*
-*Researched: 2026-02-08*
-*Confidence: HIGH (official docs) + MEDIUM (community patterns)*
+*Stack research for: VibeRipped v1.1 features (npm packaging, interactive prompts, category rotation, timed exercises, environment profiles)*
+*Researched: 2026-02-09*
+*Confidence: HIGH*
