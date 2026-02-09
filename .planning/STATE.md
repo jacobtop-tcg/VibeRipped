@@ -6,17 +6,17 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction — so the user moves by default instead of browsing by default.
 
-**Current focus:** v1.1 Polish & Intelligence — defining requirements
+**Current focus:** v1.1 Polish & Intelligence - Phase 7 (Distribution)
 
 ## Current Position
 
 Milestone: v1.1 Polish & Intelligence
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-09 — Milestone v1.1 started
+Phase: 7 of 14 (Distribution)
+Plan: Ready to plan
+Status: Ready to plan
+Last activity: 2026-02-09 - v1.1 roadmap created
 
-Progress: [████████████████████████] 100% (12/12 plans)
+Progress: [████████████░░░░░░░░░░░░] 50% (12/24 estimated plans)
 
 ## Performance Metrics
 
@@ -36,11 +36,22 @@ Progress: [███████████████████████
 | 05-cli-tooling | 2/2 | 6 min | 3 min |
 | 06-adaptive-difficulty | 2/2 | 6 min | 3 min |
 
+**Recent Trend:**
+- Last 5 plans: [3, 3, 2.5, 3, 3] minutes
+- Trend: Stable
+
 ## Accumulated Context
 
 ### Decisions
 
 Full decision log in PROJECT.md Key Decisions table.
+
+Recent decisions:
+- v1.0: Sequential rotation (not random) for predictability and trust
+- v1.0: Statusline provider (not hook) for clean integration
+- v1.0: Two-stage difficulty scaling (latency + user multiplier) with absolute bounds
+- v1.1: Research indicates batching schema changes in single phase for clean migration
+- v1.1: Detection improvement is highest risk (MEDIUM), requires live testing
 
 ### Pending Todos
 
@@ -48,15 +59,16 @@ None.
 
 ### Blockers/Concerns
 
-- Detection heuristic has known limitation (triggers on all updates after first API call) — acceptable for v1, may refine in v2
-- Concurrent session state conflicts remain edge case — atomic write-rename mitigates
+- Detection improvement (Phase 14) depends on undocumented Claude Code statusline JSON structure - live testing required
+- Category rotation weighting (Phase 11) needs algorithm validation for edge cases (extreme pool distributions)
+- Interactive prompts (Phases 12-13) must detect TTY mode to avoid breaking statusline stdin pipe
 
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Starting v1.1 milestone — defining requirements
-Resume: Continue requirements definition → roadmap
+Stopped at: v1.1 roadmap created, ready to plan Phase 7 (Distribution)
+Resume: `/gsd:plan-phase 7`
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-09 after v1.1 milestone started*
+*Last updated: 2026-02-09 after v1.1 roadmap created*

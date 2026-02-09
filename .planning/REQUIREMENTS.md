@@ -65,24 +65,24 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DIST-01 | Phase ? | Pending |
-| DIST-02 | Phase ? | Pending |
-| DIST-03 | Phase ? | Pending |
-| DTCT-01 | Phase ? | Pending |
-| INTL-01 | Phase ? | Pending |
-| INTL-02 | Phase ? | Pending |
-| INTL-03 | Phase ? | Pending |
-| INTR-01 | Phase ? | Pending |
-| INTR-02 | Phase ? | Pending |
-| INTR-03 | Phase ? | Pending |
+| DIST-01 | Phase 7 | Pending |
+| DIST-02 | Phase 7 | Pending |
+| DIST-03 | Phase 7 | Pending |
+| DTCT-01 | Phase 14 | Pending |
+| INTL-01 | Phase 11 | Pending |
+| INTL-02 | Phase 9 | Pending |
+| INTL-03 | Phase 10 | Pending |
+| INTR-01 | Phase 12 | Pending |
+| INTR-02 | Phase 13 | Pending |
+| INTR-03 | Phase 13 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10 ⚠️
+- Mapped to phases: 10
+- Unmapped: 0
 
-**Coverage: 0%** — Awaiting roadmap creation.
+**Coverage: 100%** ✓
 
 ---
 *Requirements defined: 2026-02-09*
-*Last updated: 2026-02-09 after initial definition*
+*Last updated: 2026-02-09 after v1.1 roadmap created*
