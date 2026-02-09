@@ -13,7 +13,10 @@ const {
   DEFAULT_POOL,
   FULL_EXERCISE_DATABASE,
   assemblePool,
-  computePoolHash
+  computePoolHash,
+  validateExercise,
+  VALID_CATEGORIES,
+  VALID_TYPES
 } = require('../lib/pool.js');
 
 const { EQUIPMENT_KEYS, DEFAULT_CONFIG } = require('../lib/config.js');
@@ -198,5 +201,95 @@ describe('Pool Module - Backward Compatibility', () => {
     if (pool1.length !== pool2.length) {
       assert.notStrictEqual(hash1, hash2, 'Different pools should have different hashes');
     }
+  });
+});
+
+describe('Pool Module - v1.1 Exercise Schema', () => {
+  test('v1.0 exercise with name and reps passes validateExercise', () => {
+    const v10Exercise = { name: "Pushups", reps: 15 };
+    assert.strictEqual(validateExercise(v10Exercise), true);
+  });
+
+  test('v1.0 exercise with equipment passes validateExercise', () => {
+    const v10WithEquipment = { name: "Pull-ups", reps: 8, equipment: ["pullUpBar"] };
+    assert.strictEqual(validateExercise(v10WithEquipment), true);
+  });
+
+  test('v1.1 exercise with all fields passes validateExercise', () => {
+    const v11Exercise = {
+      name: "Pushups",
+      reps: 15,
+      category: "push",
+      type: "reps",
+      environments: ["anywhere"]
+    };
+    assert.strictEqual(validateExercise(v11Exercise), true);
+  });
+
+  test('v1.1 timed exercise passes validateExercise', () => {
+    const timedExercise = {
+      name: "Plank",
+      reps: 30,
+      category: "core",
+      type: "timed",
+      environments: ["anywhere", "office"]
+    };
+    assert.strictEqual(validateExercise(timedExercise), true);
+  });
+
+  test('invalid category rejected by validateExercise', () => {
+    const invalidCategory = { name: "X", reps: 10, category: "invalid" };
+    assert.strictEqual(validateExercise(invalidCategory), false);
+  });
+
+  test('valid categories accepted by validateExercise', () => {
+    const categories = ["push", "pull", "legs", "core"];
+    for (const category of categories) {
+      const exercise = { name: "X", reps: 10, category };
+      assert.strictEqual(validateExercise(exercise), true, `Category "${category}" should be valid`);
+    }
+  });
+
+  test('invalid type rejected by validateExercise', () => {
+    const invalidType = { name: "X", reps: 10, type: "invalid" };
+    assert.strictEqual(validateExercise(invalidType), false);
+  });
+
+  test('valid types accepted by validateExercise', () => {
+    const types = ["reps", "timed"];
+    for (const type of types) {
+      const exercise = { name: "X", reps: 10, type };
+      assert.strictEqual(validateExercise(exercise), true, `Type "${type}" should be valid`);
+    }
+  });
+
+  test('invalid environments rejected by validateExercise (not array)', () => {
+    const invalidEnvironments = { name: "X", reps: 10, environments: "not-array" };
+    assert.strictEqual(validateExercise(invalidEnvironments), false);
+  });
+
+  test('empty string in environments rejected by validateExercise', () => {
+    const emptyString = { name: "X", reps: 10, environments: [""] };
+    assert.strictEqual(validateExercise(emptyString), false);
+  });
+
+  test('valid environments accepted by validateExercise', () => {
+    const validEnvironments = { name: "X", reps: 10, environments: ["home", "office", "anywhere"] };
+    assert.strictEqual(validateExercise(validEnvironments), true);
+  });
+
+  test('null category is valid (uncategorized exercise)', () => {
+    const uncategorized = { name: "X", reps: 10, category: null };
+    assert.strictEqual(validateExercise(uncategorized), true);
+  });
+
+  test('VALID_CATEGORIES constant exported', () => {
+    assert.ok(Array.isArray(VALID_CATEGORIES), 'VALID_CATEGORIES should be an array');
+    assert.deepStrictEqual(VALID_CATEGORIES, ["push", "pull", "legs", "core"]);
+  });
+
+  test('VALID_TYPES constant exported', () => {
+    assert.ok(Array.isArray(VALID_TYPES), 'VALID_TYPES should be an array');
+    assert.deepStrictEqual(VALID_TYPES, ["reps", "timed"]);
   });
 });
