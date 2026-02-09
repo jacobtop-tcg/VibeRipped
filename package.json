@@ -1,6 +1,6 @@
 {
   "name": "viberipped",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Deterministic micro-exercise rotation engine for Claude Code",
   "main": "engine.js",
   "type": "commonjs",
@@ -8,14 +8,40 @@
     "vibripped": "./bin/vibripped.js"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "prepublishOnly": "npm test"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "engine.js",
+    "statusline.js",
+    "statusline-orchestrator.sh",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/USERNAME/viberipped.git"
+  },
+  "homepage": "https://github.com/USERNAME/viberipped",
+  "bugs": {
+    "url": "https://github.com/USERNAME/viberipped/issues"
+  },
+  "author": "USERNAME",
+  "engines": {
+    "node": ">=18.0.0"
   },
   "license": "MIT",
   "keywords": [
     "exercise",
     "rotation",
     "productivity",
-    "claude-code"
+    "claude-code",
+    "cli",
+    "fitness",
+    "micro-breaks",
+    "statusline"
   ],
   "dependencies": {
     "commander": "^14.0.3",
