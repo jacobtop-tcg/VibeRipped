@@ -73,6 +73,11 @@ describe('Config Module - Default Configuration', () => {
     assert.strictEqual(DEFAULT_CONFIG.equipment.pullUpBar, false);
     assert.strictEqual(DEFAULT_CONFIG.equipment.parallettes, false);
   });
+
+  test('DEFAULT_CONFIG has difficulty.multiplier set to 1.0', () => {
+    assert.ok(DEFAULT_CONFIG.difficulty, 'difficulty field should exist');
+    assert.strictEqual(DEFAULT_CONFIG.difficulty.multiplier, 1.0);
+  });
 });
 
 describe('Config Module - Validation', () => {
@@ -107,6 +112,49 @@ describe('Config Module - Validation', () => {
       }
     };
     assert.strictEqual(validateConfig(partialConfig), true);
+  });
+
+  test('validateConfig accepts config with difficulty field', () => {
+    const configWithDifficulty = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      difficulty: {
+        multiplier: 1.5
+      }
+    };
+    assert.strictEqual(validateConfig(configWithDifficulty), true);
+  });
+
+  test('validateConfig rejects non-object difficulty field', () => {
+    const invalidDifficulty = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      difficulty: "hard"
+    };
+    assert.strictEqual(validateConfig(invalidDifficulty), false);
+  });
+
+  test('validateConfig rejects non-numeric difficulty multiplier', () => {
+    const invalidMultiplier = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      difficulty: {
+        multiplier: "1.5"
+      }
+    };
+    assert.strictEqual(validateConfig(invalidMultiplier), false);
   });
 });
 
@@ -148,11 +196,49 @@ describe('Config Module - Load/Save', () => {
         dumbbells: false,
         pullUpBar: false,
         parallettes: false
+      },
+      difficulty: {
+        multiplier: 1.0
       }
     };
     fs.writeFileSync(tmpConfigPath, JSON.stringify(validConfig), 'utf8');
     const result = loadConfig(tmpConfigPath);
     assert.deepStrictEqual(result, validConfig);
+  });
+
+  test('loadConfig normalizes missing difficulty field', () => {
+    const configWithoutDifficulty = {
+      equipment: {
+        kettlebell: true,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      }
+    };
+    fs.writeFileSync(tmpConfigPath, JSON.stringify(configWithoutDifficulty), 'utf8');
+    const result = loadConfig(tmpConfigPath);
+
+    // Should add difficulty with default multiplier
+    assert.ok(result.difficulty, 'difficulty field should be added');
+    assert.strictEqual(result.difficulty.multiplier, 1.0);
+  });
+
+  test('loadConfig preserves custom difficulty multiplier', () => {
+    const configWithCustomDifficulty = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      difficulty: {
+        multiplier: 2.0
+      }
+    };
+    fs.writeFileSync(tmpConfigPath, JSON.stringify(configWithCustomDifficulty), 'utf8');
+    const result = loadConfig(tmpConfigPath);
+
+    assert.strictEqual(result.difficulty.multiplier, 2.0);
   });
 
   test('saveConfig writes config atomically with secure permissions', () => {
