@@ -133,10 +133,11 @@ Plans:
   4. User can decrement difficulty via command and change persists across sessions
   5. Rep scaling remains within practical bounds for work environment regardless of multiplier or duration
 
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 06-01: TBD during plan-phase
+- [ ] 06-01-PLAN.md — Difficulty scaling module with TDD and config extension
+- [ ] 06-02-PLAN.md — Engine/statusline integration and harder/softer CLI commands
 
 ## Progress
 
@@ -150,8 +151,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Statusline Provider | 2/2 | ✓ Complete | 2026-02-08 |
 | 4. GSD Coexistence | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. CLI Tooling | 2/2 | ✓ Complete | 2026-02-09 |
-| 6. Adaptive Difficulty | 0/? | Not started | - |
+| 6. Adaptive Difficulty | 0/2 | In Progress | - |
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-09 after Phase 5 execution complete*
+*Last updated: 2026-02-09 after Phase 6 planning complete*
