@@ -11,16 +11,16 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 ## Current Position
 
 Phase: 5 of 6 (CLI Tooling)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-09 — Completed 05-01-PLAN.md (CLI Tooling Foundation)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-09 — Completed 05-02-PLAN.md (Pool Management and CLI Tests)
 
-Progress: [█████████████████░░░] 85%
+Progress: [████████████████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 2.6 min
 - Total execution time: 0.4 hours
 
@@ -32,10 +32,10 @@ Progress: [█████████████████░░░] 85%
 | 02-exercise-pool-configuration | 2/2 | 7 min | 3.5 min |
 | 03-statusline-provider | 2/2 | 3 min | 1.5 min |
 | 04-gsd-coexistence | 2/2 | 5 min | 2.5 min |
-| 05-cli-tooling | 1/2 | 3 min | 3 min |
+| 05-cli-tooling | 2/2 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (2min), 04-01 (2min), 04-02 (3min), 05-01 (3min)
+- Last 5 plans: 04-01 (2min), 04-02 (3min), 05-01 (3min), 05-02 (3min)
 - Trend: Sustained high velocity
 
 *Updated after each plan completion*
@@ -85,6 +85,11 @@ Recent decisions affecting current work:
 - Immediate pool.json generation on config save — single-command workflow satisfies equipment declaration requirement (05-01)
 - dryRun option in engine.js for state-preserving preview — test command shows next exercise without advancing rotation (05-01)
 - Absolute path requires in CLI modules — path.join(__dirname, '../relative/path') avoids relative path resolution issues (05-01)
+- Pool commands update poolHash and reset currentIndex — prevents rotation misalignment when pool changes (05-02)
+- Cannot remove last exercise from pool — prevents empty pool state which would break rotation engine (05-02)
+- Case-insensitive duplicate detection — pool add/remove match names case-insensitively for better UX (05-02)
+- Custom CLI exercises have empty equipment array — CLI-added exercises default to bodyweight (05-02)
+- Non-fatal state updates in pool commands — state hash updates logged as warnings, state reinitializes on next trigger if corrupted (05-02)
 
 ### Pending Todos
 
@@ -103,9 +108,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 05-01-PLAN.md - CLI Tooling Foundation
-Resume file: .planning/phases/05-cli-tooling/05-02-PLAN.md (next plan ready)
+Stopped at: Completed 05-02-PLAN.md - Pool Management and CLI Tests (Phase 5 complete)
+Resume file: Ready for Phase 6 (Final Validation)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-09 after completing 05-01-PLAN.md*
+*Last updated: 2026-02-09 after completing 05-02-PLAN.md*
