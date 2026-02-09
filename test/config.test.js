@@ -203,7 +203,14 @@ describe('Config Module - Load/Save', () => {
     };
     fs.writeFileSync(tmpConfigPath, JSON.stringify(validConfig), 'utf8');
     const result = loadConfig(tmpConfigPath);
-    assert.deepStrictEqual(result, validConfig);
+
+    // loadConfig normalizes by adding v1.1 fields with defaults
+    const expected = {
+      ...validConfig,
+      environment: "anywhere",
+      schemaVersion: "1.0"
+    };
+    assert.deepStrictEqual(result, expected);
   });
 
   test('loadConfig normalizes missing difficulty field', () => {
@@ -268,5 +275,149 @@ describe('Config Module - Load/Save', () => {
       const mode = stats.mode & 0o777;
       assert.strictEqual(mode, 0o600, 'Config file should have 0600 permissions');
     }
+  });
+});
+
+describe('Config Module - v1.1 config schema', () => {
+  let tmpDir;
+  let tmpConfigPath;
+
+  beforeEach(() => {
+    tmpDir = createTempStateDir();
+    tmpConfigPath = path.join(tmpDir, 'configuration.json');
+  });
+
+  afterEach(() => {
+    cleanupTempStateDir(tmpDir);
+  });
+
+  test('v1.0 config without environment field passes validateConfig', () => {
+    const v10Config = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      }
+    };
+    assert.strictEqual(validateConfig(v10Config), true);
+  });
+
+  test('v1.1 config with environment: "office" passes validateConfig', () => {
+    const v11Config = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      environment: "office"
+    };
+    assert.strictEqual(validateConfig(v11Config), true);
+  });
+
+  test('v1.1 config with environment: "anywhere" passes validateConfig', () => {
+    const v11Config = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      environment: "anywhere"
+    };
+    assert.strictEqual(validateConfig(v11Config), true);
+  });
+
+  test('non-string environment rejected', () => {
+    const invalidEnv = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      environment: 123
+    };
+    assert.strictEqual(validateConfig(invalidEnv), false);
+  });
+
+  test('v1.1 config with schemaVersion: "1.1" passes validateConfig', () => {
+    const v11Config = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      schemaVersion: "1.1"
+    };
+    assert.strictEqual(validateConfig(v11Config), true);
+  });
+
+  test('non-string schemaVersion rejected', () => {
+    const invalidSchema = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      schemaVersion: 1.1
+    };
+    assert.strictEqual(validateConfig(invalidSchema), false);
+  });
+
+  test('loadConfig normalizes missing environment to "anywhere"', () => {
+    const configWithoutEnvironment = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      }
+    };
+    fs.writeFileSync(tmpConfigPath, JSON.stringify(configWithoutEnvironment), 'utf8');
+    const result = loadConfig(tmpConfigPath);
+
+    assert.strictEqual(result.environment, "anywhere");
+  });
+
+  test('loadConfig normalizes missing schemaVersion to "1.0"', () => {
+    const configWithoutSchema = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      }
+    };
+    fs.writeFileSync(tmpConfigPath, JSON.stringify(configWithoutSchema), 'utf8');
+    const result = loadConfig(tmpConfigPath);
+
+    assert.strictEqual(result.schemaVersion, "1.0");
+  });
+
+  test('loadConfig preserves explicit environment value', () => {
+    const configWithEnvironment = {
+      equipment: {
+        kettlebell: false,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      },
+      environment: "office"
+    };
+    fs.writeFileSync(tmpConfigPath, JSON.stringify(configWithEnvironment), 'utf8');
+    const result = loadConfig(tmpConfigPath);
+
+    assert.strictEqual(result.environment, "office");
+  });
+
+  test('DEFAULT_CONFIG includes environment and schemaVersion fields', () => {
+    assert.ok(DEFAULT_CONFIG.environment, 'DEFAULT_CONFIG should have environment field');
+    assert.strictEqual(DEFAULT_CONFIG.environment, "anywhere");
+    assert.ok(DEFAULT_CONFIG.schemaVersion, 'DEFAULT_CONFIG should have schemaVersion field');
+    assert.strictEqual(DEFAULT_CONFIG.schemaVersion, "1.0");
   });
 });
