@@ -6,14 +6,15 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction — so the user moves by default instead of browsing by default.
 
-**Current focus:** v1.0 complete — planning next milestone
+**Current focus:** v1.1 Polish & Intelligence — defining requirements
 
 ## Current Position
 
-Milestone: v1.0 MVP — SHIPPED
-Phase: 6 of 6 (all complete)
-Status: Milestone complete
-Last activity: 2026-02-09 — v1.0 milestone archived
+Milestone: v1.1 Polish & Intelligence
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-09 — Milestone v1.1 started
 
 Progress: [████████████████████████] 100% (12/12 plans)
 
@@ -53,9 +54,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: v1.0 milestone complete and archived
-Resume: `/gsd:new-milestone` for next version
+Stopped at: Starting v1.1 milestone — defining requirements
+Resume: Continue requirements definition → roadmap
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-09 after v1.0 milestone complete*
+*Last updated: 2026-02-09 after v1.1 milestone started*

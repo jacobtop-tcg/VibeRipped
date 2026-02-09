@@ -45,18 +45,35 @@ Known limitations:
 
 ### Active
 
-(None — all v1 requirements shipped)
+- [ ] npm package with global install and one-command setup
+- [ ] README with usage docs, install instructions, GIF demo
+- [ ] Smarter detection heuristic — only trigger during actual API calls
+- [ ] Category-aware rotation — avoid stacking same muscle group
+- [ ] Timed exercises support (planks, wall sits) alongside rep-based
+- [ ] Environment profiles (home office vs coworking — filter exercises by context)
+- [ ] Interactive terminal wizard for first-time setup (checkbox equipment selection)
+- [ ] Batch exercise add from comma-separated list
+- [ ] Interactive exercise checklist for add/remove management
+
+## Current Milestone: v1.1 Polish & Intelligence
+
+**Goal:** Make VibeRipped distributable, fix detection accuracy, add exercise intelligence and interactive setup UX.
+
+**Target features:**
+- Distribution: npm package, README, .gitignore
+- Detection: Precise API-call-only triggering
+- Intelligence: Category rotation, timed exercises, environment profiles
+- UX: Interactive wizard, batch add, checklist management
 
 ### Out of Scope
 
 - Workout programming or periodization — this is not a training plan
 - Technique instruction or form coaching — assumes user knows the movements
 - Motivational messaging, gamification, or streaks — the system is an execution primitive, not a companion
-- Hook-based trigger system — v1 is statusline-only, no hooks
+- Hook-based trigger system — statusline-only, no hooks
 - Mobile or external device integration — lives entirely inside the terminal
 - Random or AI-generated exercises — pool is curated and bounded
 - Sound or desktop notifications — silent operation is a design invariant
-- Multiple equipment profiles — single config is sufficient for v1
 - Exercise completion logging/analytics — tracking adds friction without proven benefit
 
 ## Context
@@ -94,4 +111,4 @@ Known limitations:
 | Commander.js for CLI | Negatable options, command routing, help generation | ✓ Good — minimal weight, good ergonomics |
 
 ---
-*Last updated: 2026-02-09 after v1.0 milestone*
+*Last updated: 2026-02-09 after v1.1 milestone started*
