@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Statusline Provider** - Claude Code integration with process detection and formatted output
 - [x] **Phase 4: GSD Coexistence** - Multi-provider orchestration via concatenating statusline script
 - [x] **Phase 5: CLI Tooling** - Setup, management, and dry-run commands for user-facing operations
-- [ ] **Phase 6: Adaptive Difficulty** - Rep scaling based on latency duration and user-controlled difficulty multiplier
+- [x] **Phase 6: Adaptive Difficulty** - Rep scaling based on latency duration and user-controlled difficulty multiplier
 
 ## Phase Details
 
@@ -136,8 +136,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Difficulty scaling module with TDD and config extension
-- [ ] 06-02-PLAN.md — Engine/statusline integration and harder/softer CLI commands
+- [x] 06-01-PLAN.md — Difficulty scaling module with TDD and config extension
+- [x] 06-02-PLAN.md — Engine/statusline integration and harder/softer CLI commands
 
 ## Progress
 
@@ -151,8 +151,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Statusline Provider | 2/2 | ✓ Complete | 2026-02-08 |
 | 4. GSD Coexistence | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. CLI Tooling | 2/2 | ✓ Complete | 2026-02-09 |
-| 6. Adaptive Difficulty | 0/2 | In Progress | - |
+| 6. Adaptive Difficulty | 2/2 | ✓ Complete | 2026-02-09 |
 
 ---
 *Roadmap created: 2026-02-08*
-*Last updated: 2026-02-09 after Phase 6 planning complete*
+*Last updated: 2026-02-09 after Phase 6 execution complete*
