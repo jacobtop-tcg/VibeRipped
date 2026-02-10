@@ -39,7 +39,10 @@ describe('parseStdin', () => {
   });
 });
 
-describe('isProcessing', () => {
+describe('isProcessing (fallback / v1.0 compatibility)', () => {
+  // These tests cover the fallback path when cost field is unavailable
+  // This path maintains backward compatibility with v1.0 token-based heuristic
+
   test('returns true when current_usage has input_tokens > 0', () => {
     const data = { context_window: { current_usage: { input_tokens: 50, cache_read_input_tokens: 0 } } };
     assert.strictEqual(isProcessing(data), true);
@@ -76,6 +79,77 @@ describe('isProcessing', () => {
 
   test('returns false for undefined input data', () => {
     assert.strictEqual(isProcessing(undefined), false);
+  });
+});
+
+describe('isProcessing (delta detection)', () => {
+  // These tests cover the v1.1 delta-based detection path using cost.total_api_duration_ms
+  // Requires temporary state directory for detection state persistence
+
+  let tmpDir;
+
+  function createTmpDir() {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viberipped-test-detection-'));
+    return tmpDir;
+  }
+
+  function cleanupTmpDir() {
+    if (tmpDir) {
+      try {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  test('returns true when cost field present with increasing duration', () => {
+    const testDir = createTmpDir();
+    const statePath = path.join(testDir, 'detection-state.json');
+
+    try {
+      // First call: establish baseline
+      const data1 = {
+        session_id: 'test-session',
+        cost: { total_api_duration_ms: 0 }
+      };
+      const result1 = isProcessing(data1, { statePath });
+      assert.strictEqual(result1, false); // No delta yet
+
+      // Second call: duration increased
+      const data2 = {
+        session_id: 'test-session',
+        cost: { total_api_duration_ms: 5000 }
+      };
+      const result2 = isProcessing(data2, { statePath });
+      assert.strictEqual(result2, true); // Delta >= threshold (5000 >= 100)
+    } finally {
+      cleanupTmpDir();
+    }
+  });
+
+  test('returns false when cost field present but duration unchanged', () => {
+    const testDir = createTmpDir();
+    const statePath = path.join(testDir, 'detection-state.json');
+
+    try {
+      // First call: establish baseline
+      const data1 = {
+        session_id: 'test-session',
+        cost: { total_api_duration_ms: 5000 }
+      };
+      isProcessing(data1, { statePath });
+
+      // Second call: same duration
+      const data2 = {
+        session_id: 'test-session',
+        cost: { total_api_duration_ms: 5000 }
+      };
+      const result = isProcessing(data2, { statePath });
+      assert.strictEqual(result, false); // No delta
+    } finally {
+      cleanupTmpDir();
+    }
   });
 });
 
@@ -188,7 +262,18 @@ describe('statusline.js integration', () => {
 
   test('outputs ANSI-formatted exercise when valid processing JSON piped to stdin', () => {
     const tmpHome = createTmpStateDir();
+
+    // Pre-seed detection state to simulate established session
+    const stateDir = path.join(tmpHome, '.config', 'viberipped');
+    fs.mkdirSync(stateDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(stateDir, 'detection-state.json'),
+      JSON.stringify({ sessionId: 'test-session', lastApiDuration: 0, lastUpdate: 0 })
+    );
+
     const input = JSON.stringify({
+      session_id: 'test-session',
+      cost: { total_api_duration_ms: 5000 },
       context_window: {
         current_usage: {
           input_tokens: 500,
@@ -233,6 +318,111 @@ describe('statusline.js integration', () => {
       );
 
       assert.strictEqual(result, '');
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+
+  test('outputs empty when API duration unchanged (no delta)', () => {
+    const tmpHome = createTmpStateDir();
+
+    // Pre-seed detection state with same duration as input
+    const stateDir = path.join(tmpHome, '.config', 'viberipped');
+    fs.mkdirSync(stateDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(stateDir, 'detection-state.json'),
+      JSON.stringify({ sessionId: 'test-session', lastApiDuration: 5000, lastUpdate: 0 })
+    );
+
+    const input = JSON.stringify({
+      session_id: 'test-session',
+      cost: { total_api_duration_ms: 5000 },
+      context_window: {
+        current_usage: {
+          input_tokens: 500,
+          cache_read_input_tokens: 0
+        }
+      }
+    });
+
+    try {
+      const result = execSync(
+        `echo '${input}' | node ${path.join(__dirname, '..', 'statusline.js')}`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' }
+        }
+      );
+
+      assert.strictEqual(result, '');
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+
+  test('outputs empty on first invocation of new session (session reset)', () => {
+    const tmpHome = createTmpStateDir();
+
+    // Pre-seed detection state with different session ID
+    const stateDir = path.join(tmpHome, '.config', 'viberipped');
+    fs.mkdirSync(stateDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(stateDir, 'detection-state.json'),
+      JSON.stringify({ sessionId: 'old-session', lastApiDuration: 5000, lastUpdate: 0 })
+    );
+
+    const input = JSON.stringify({
+      session_id: 'new-session',
+      cost: { total_api_duration_ms: 5000 },
+      context_window: {
+        current_usage: {
+          input_tokens: 500,
+          cache_read_input_tokens: 0
+        }
+      }
+    });
+
+    try {
+      const result = execSync(
+        `echo '${input}' | node ${path.join(__dirname, '..', 'statusline.js')}`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' }
+        }
+      );
+
+      assert.strictEqual(result, '');
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+
+  test('falls back to v1.0 heuristic when cost field absent', () => {
+    const tmpHome = createTmpStateDir();
+
+    // No detection state pre-seeding needed - uses fallback path
+    const input = JSON.stringify({
+      context_window: {
+        current_usage: {
+          input_tokens: 500,
+          cache_read_input_tokens: 0
+        }
+      }
+    });
+
+    try {
+      const result = execSync(
+        `echo '${input}' | node ${path.join(__dirname, '..', 'statusline.js')}`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' }
+        }
+      );
+
+      // Should produce exercise output via fallback path
+      assert.match(result, /\x1b\[36m\x1b\[1m/); // cyan bold ANSI codes
+      assert.match(result, / x\d+/); // " x{reps}" format
+      assert.match(result, /\x1b\[0m/); // reset code
     } finally {
       cleanupTmpStateDir();
     }
@@ -312,7 +502,15 @@ describe('statusline.js integration', () => {
     };
     fs.writeFileSync(path.join(stateDir, 'state.json'), JSON.stringify(state, null, 2));
 
+    // Pre-seed detection state for delta detection
+    fs.writeFileSync(
+      path.join(stateDir, 'detection-state.json'),
+      JSON.stringify({ sessionId: 'test-session', lastApiDuration: 0, lastUpdate: 0 })
+    );
+
     const input = JSON.stringify({
+      session_id: 'test-session',
+      cost: { total_api_duration_ms: 5000 },
       context_window: {
         current_usage: {
           input_tokens: 500,
@@ -373,7 +571,15 @@ describe('statusline.js integration', () => {
     };
     fs.writeFileSync(path.join(stateDir, 'state.json'), JSON.stringify(state, null, 2));
 
+    // Pre-seed detection state for delta detection
+    fs.writeFileSync(
+      path.join(stateDir, 'detection-state.json'),
+      JSON.stringify({ sessionId: 'test-session', lastApiDuration: 0, lastUpdate: 0 })
+    );
+
     const input = JSON.stringify({
+      session_id: 'test-session',
+      cost: { total_api_duration_ms: 5000 },
       context_window: {
         current_usage: {
           input_tokens: 500,
@@ -391,9 +597,9 @@ describe('statusline.js integration', () => {
         }
       );
 
-      // Should display "x15" not "15s" for rep exercises
-      assert.match(result, /Pushups x15/);
-      assert.ok(!result.includes('15s'), 'Should not contain "15s" for rep exercise');
+      // Should display "xN" not "Ns" for rep exercises (N may be scaled by latency)
+      assert.match(result, /Pushups x\d+/);
+      assert.ok(!result.match(/\d+s/), 'Should not contain seconds format for rep exercise');
       assert.match(result, /\x1b\[36m\x1b\[1m/); // cyan bold ANSI codes
       assert.match(result, /💪 /); // prefix emoji
     } finally {
