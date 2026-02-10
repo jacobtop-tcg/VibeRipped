@@ -80,6 +80,7 @@ function trigger(pool = null, options = {}) {
     migrateStateIfNeeded(statePath);
 
     const config = loadConfig(configPath);
+    // Assemble pool with equipment filtering ONLY (no environment filter for pool.json)
     const assembledPool = assemblePool(config);
     const assembledHash = computePoolHash(assembledPool);
     configPoolHash = assembledHash;
@@ -130,6 +131,25 @@ function trigger(pool = null, options = {}) {
   } else {
     // Legacy mode: explicit pool provided (Phase 1 backward compatibility)
     actualPool = pool;
+  }
+
+  // Apply runtime environment filtering (config-driven mode only)
+  if (pool === null) {
+    const config = loadConfig(configPath);
+    const environment = config.environment || 'anywhere';
+
+    // Filter actualPool by environment
+    const envFiltered = actualPool.filter(exercise => {
+      const exerciseEnvs = exercise.environments || ['anywhere'];
+      return exerciseEnvs.includes('anywhere') || exerciseEnvs.includes(environment);
+    });
+
+    // Use filtered pool (or fall back to full pool if filter empties it)
+    if (envFiltered.length > 0) {
+      actualPool = envFiltered;
+    } else {
+      console.error(`Environment filter '${environment}' produced empty pool, using full pool`);
+    }
   }
 
   // Load state with custom path

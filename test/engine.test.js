@@ -824,3 +824,120 @@ describe('formatPrompt type-aware', () => {
     assert.strictEqual(result, "Pushups x15");
   });
 });
+
+describe('Rotation Engine - Environment Filtering', () => {
+  let tmpDir;
+  let statePath;
+  let configPath;
+  let poolPath;
+
+  beforeEach(() => {
+    tmpDir = createTempStateDir();
+    statePath = path.join(tmpDir, 'state.json');
+    configPath = path.join(tmpDir, 'configuration.json');
+    poolPath = path.join(tmpDir, 'pool.json');
+  });
+
+  afterEach(() => {
+    cleanupTempStateDir(tmpDir);
+  });
+
+  test('passes config environment to assemblePool in config-driven mode', () => {
+    // Create a v1.1 config with environment: "office"
+    const config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      environment: "office",
+      difficulty: { multiplier: 1.0 },
+      schemaVersion: "1.1"
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    // Write a pool.json with mixed-environment exercises
+    const mixedPool = [
+      { name: "Anywhere pushups", reps: 15, equipment: [], environments: ["anywhere"] },
+      { name: "Office desk work", reps: 10, equipment: [], environments: ["office"] },
+      { name: "Home squats", reps: 20, equipment: [], environments: ["home"] }
+    ];
+    fs.writeFileSync(poolPath, JSON.stringify(mixedPool, null, 2));
+
+    // Write state with matching configPoolHash to prevent pool regeneration
+    const assembledPool = assemblePool(config);
+    const state = {
+      currentIndex: 0,
+      lastTriggerTime: 0,
+      poolHash: computePoolHash(mixedPool),
+      configPoolHash: computePoolHash(assembledPool),
+      totalTriggered: 0
+    };
+    fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+
+    // Trigger in config-driven mode
+    const result = trigger(null, { statePath, bypassCooldown: true });
+
+    assert.strictEqual(result.type, 'exercise');
+
+    // The returned exercise should be from office or anywhere environments, NOT from home-only
+    const exerciseName = result.exercise.name;
+    assert.ok(
+      exerciseName === "Anywhere pushups" || exerciseName === "Office desk work",
+      `Expected office or anywhere exercise, got: ${exerciseName}`
+    );
+    assert.notStrictEqual(exerciseName, "Home squats", 'Should not return home-only exercise when environment is office');
+  });
+
+  test('defaults to anywhere when config has no environment field', () => {
+    // Create a config WITHOUT environment field (simulating v1.0 config)
+    const v10Config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false }
+      // No environment field
+    };
+    fs.writeFileSync(configPath, JSON.stringify(v10Config, null, 2));
+
+    // Trigger should work with all "anywhere" exercises
+    const result = trigger(null, { statePath, bypassCooldown: true });
+
+    assert.strictEqual(result.type, 'exercise');
+    // Should return a valid exercise (all bodyweight exercises are tagged "anywhere")
+    assert.ok(result.exercise.name, 'Should return exercise with name');
+    assert.ok(result.exercise.reps > 0, 'Should return exercise with positive reps');
+  });
+
+  test('resets index when filtered pool is smaller than current index', () => {
+    // Create config with environment: "office"
+    const config = {
+      equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false },
+      environment: "office"
+    };
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+    // Write a small pool with only 5 exercises (some office, some anywhere)
+    const smallPool = [
+      { name: "Exercise 1", reps: 10, equipment: [], environments: ["anywhere"] },
+      { name: "Exercise 2", reps: 10, equipment: [], environments: ["anywhere"] },
+      { name: "Exercise 3", reps: 10, equipment: [], environments: ["anywhere"] },
+      { name: "Exercise 4", reps: 10, equipment: [], environments: ["anywhere"] },
+      { name: "Exercise 5", reps: 10, equipment: [], environments: ["anywhere"] }
+    ];
+    fs.writeFileSync(poolPath, JSON.stringify(smallPool, null, 2));
+
+    // Create a state with currentIndex = 8 (beyond the pool size)
+    const state = {
+      currentIndex: 8,
+      lastTriggerTime: 0,
+      poolHash: computePoolHash(smallPool),
+      configPoolHash: computePoolHash(assemblePool(config, 'office')),
+      totalTriggered: 0
+    };
+    fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+
+    // Trigger should NOT crash and should return a valid exercise
+    const result = trigger(null, { statePath, bypassCooldown: true });
+
+    assert.strictEqual(result.type, 'exercise');
+    assert.ok(result.exercise.name, 'Should return valid exercise even with out-of-bounds index');
+
+    // Position should be reset to valid range (0-4)
+    assert.ok(result.position.current >= 0 && result.position.current < 5,
+      `Position ${result.position.current} should be within pool bounds (0-4)`);
+  });
+});
