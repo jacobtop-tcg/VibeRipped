@@ -157,10 +157,11 @@ Plans:
   3. Detection threshold configurable via `config.detection.sensitivity` setting
   4. Live testing validates accuracy across typical multi-project Claude Code sessions
   5. Fallback to v1.0 heuristic if statusline structure changes unexpectedly
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 14-01: TBD
+- [ ] 14-01-PLAN.md -- TDD: Delta-based API detection with configurable sensitivity and v1.0 fallback
+- [ ] 14-02-PLAN.md -- Statusline wiring, integration tests, and live testing verification
 
 ## Progress
 
