@@ -69,7 +69,7 @@ poolCmd
 
 poolCmd
   .command('add <name> <reps>')
-  .description('Add exercise to pool')
+  .description('Add exercise to pool (or batch: "Name1 reps1, Name2 reps2")')
   .option('--type <type>', 'Exercise type: reps or timed', 'reps')
   .option('--duration <seconds>', 'Duration in seconds (for timed exercises)')
   .option('--environments <envs>', 'Comma-separated environments (e.g., "home,office")')
