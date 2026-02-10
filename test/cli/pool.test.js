@@ -493,4 +493,228 @@ describe('pool command', () => {
 
     cleanup(tempHome);
   });
+
+  describe('pool batch add', () => {
+    test('batch adds multiple exercises from comma-separated input', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with one exercise
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stdout } = await runCLI(['pool', 'add', 'Burpees 12, Mountain climbers 20, Jumping jacks 30'], tempHome);
+
+      assert.strictEqual(code, 0);
+      assert.match(stdout, /Added 3 exercises/);
+
+      // Verify pool.json has 4 total exercises
+      const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+      const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+      assert.strictEqual(pool.length, 4);
+
+      // Verify each new exercise
+      const burpees = pool.find(ex => ex.name === 'Burpees');
+      assert.ok(burpees, 'Burpees should exist');
+      assert.strictEqual(burpees.reps, 12);
+
+      const climbers = pool.find(ex => ex.name === 'Mountain climbers');
+      assert.ok(climbers, 'Mountain climbers should exist');
+      assert.strictEqual(climbers.reps, 20);
+
+      const jacks = pool.find(ex => ex.name === 'Jumping jacks');
+      assert.ok(jacks, 'Jumping jacks should exist');
+      assert.strictEqual(jacks.reps, 30);
+
+      cleanup(tempHome);
+    });
+
+    test('batch add rejects if any exercise has invalid format (missing reps)', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with one exercise
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stderr } = await runCLI(['pool', 'add', 'Burpees 12, Invalid, Squats 20'], tempHome);
+
+      assert.strictEqual(code, 1);
+      assert.match(stderr, /Invalid format|missing reps/i);
+
+      // Verify pool unchanged (atomic failure - Burpees NOT added)
+      const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+      const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+      assert.strictEqual(pool.length, 1);
+      assert.strictEqual(pool[0].name, 'Pushups');
+
+      cleanup(tempHome);
+    });
+
+    test('batch add rejects if reps are invalid', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with one exercise
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stderr } = await runCLI(['pool', 'add', 'Burpees 12, Squats abc'], tempHome);
+
+      assert.strictEqual(code, 1);
+      assert.match(stderr, /Invalid reps/);
+
+      // Verify pool unchanged
+      const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+      const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+      assert.strictEqual(pool.length, 1);
+
+      cleanup(tempHome);
+    });
+
+    test('batch add rejects duplicate within batch', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with one exercise
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stderr } = await runCLI(['pool', 'add', 'Burpees 12, Squats 20, Burpees 15'], tempHome);
+
+      assert.strictEqual(code, 1);
+      assert.match(stderr, /Duplicate exercise.*batch.*Burpees/i);
+
+      // Verify pool unchanged
+      const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+      const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+      assert.strictEqual(pool.length, 1);
+
+      cleanup(tempHome);
+    });
+
+    test('batch add rejects duplicate against existing pool', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with Pushups
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stderr } = await runCLI(['pool', 'add', 'Burpees 12, Pushups 20'], tempHome);
+
+      assert.strictEqual(code, 1);
+      assert.match(stderr, /already exists/);
+
+      // Verify pool unchanged
+      const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+      const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+      assert.strictEqual(pool.length, 1);
+
+      cleanup(tempHome);
+    });
+
+    test('batch add handles multi-word exercise names', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with one exercise
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stdout } = await runCLI(['pool', 'add', 'Jumping jacks 30, Mountain climbers 20, High knees 25'], tempHome);
+
+      assert.strictEqual(code, 0);
+
+      // Verify pool contains exercises with correct multi-word names
+      const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+      const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+
+      const jacks = pool.find(ex => ex.name === 'Jumping jacks');
+      assert.ok(jacks, 'Jumping jacks should exist');
+      assert.strictEqual(jacks.reps, 30);
+
+      const climbers = pool.find(ex => ex.name === 'Mountain climbers');
+      assert.ok(climbers, 'Mountain climbers should exist');
+      assert.strictEqual(climbers.reps, 20);
+
+      const knees = pool.find(ex => ex.name === 'High knees');
+      assert.ok(knees, 'High knees should exist');
+      assert.strictEqual(knees.reps, 25);
+
+      cleanup(tempHome);
+    });
+
+    test('batch add handles extra whitespace', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with one exercise
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stdout } = await runCLI(['pool', 'add', 'Burpees  12 ,  Squats   20'], tempHome);
+
+      assert.strictEqual(code, 0);
+      assert.match(stdout, /Added 2 exercises/);
+
+      // Verify pool has correct names and reps
+      const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+      const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+
+      const burpees = pool.find(ex => ex.name === 'Burpees');
+      assert.ok(burpees, 'Burpees should exist');
+      assert.strictEqual(burpees.reps, 12);
+
+      const squats = pool.find(ex => ex.name === 'Squats');
+      assert.ok(squats, 'Squats should exist');
+      assert.strictEqual(squats.reps, 20);
+
+      cleanup(tempHome);
+    });
+
+    test('batch add resets state index', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with one exercise
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      // Create state with currentIndex > 0
+      createState(tempHome, {
+        currentIndex: 5,
+        lastTriggerTime: 0,
+        poolHash: 'somehash',
+        totalTriggered: 10
+      });
+
+      // Run batch add
+      const { code } = await runCLI(['pool', 'add', 'Burpees 12, Squats 20'], tempHome);
+
+      assert.strictEqual(code, 0);
+
+      // Verify state.json currentIndex is 0
+      const state = readState(tempHome);
+      assert.strictEqual(state.currentIndex, 0);
+
+      cleanup(tempHome);
+    });
+  });
 });
