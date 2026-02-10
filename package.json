@@ -1,6 +1,6 @@
 {
   "name": "viberipped",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Deterministic micro-exercise rotation engine for Claude Code",
   "main": "engine.js",
   "type": "commonjs",
