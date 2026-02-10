@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 Milestone: v1.1 Polish & Intelligence
 Phase: 14 of 14 (Detection Improvement)
-Plan: 1 of 2 in phase
-Status: In progress
-Last activity: 2026-02-10 - Completed 14-01-PLAN.md
+Plan: 2 of 2 in phase
+Status: Phase complete
+Last activity: 2026-02-10 - Completed 14-02-PLAN.md
 
-Progress: [█████████████████████████░] 96% (27/28 estimated plans)
+Progress: [██████████████████████████] 100% (28/28 estimated plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
+- Total plans completed: 28
 - Average duration: 2.6 min
-- Total execution time: 1.20 hours
+- Total execution time: 1.24 hours
 
 **By Phase:**
 
@@ -42,10 +42,10 @@ Progress: [███████████████████████
 | 11-category-aware-rotation | 2/2 | 5 min | 2.5 min |
 | 12-interactive-setup-wizard | 2/2 | 5 min | 2.5 min |
 | 13-batch-checklist-management | 2/2 | 6 min | 3 min |
-| 14-detection-improvement | 1/2 | 3 min | 3 min |
+| 14-detection-improvement | 2/2 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: [2, 3, 4, 2, 3] minutes
+- Last 5 plans: [3, 4, 2, 3, 4] minutes
 - Trend: Stable
 
 ## Accumulated Context
@@ -87,6 +87,8 @@ Recent decisions:
 - Phase 14: Session tracking via sessionId prevents false positives on Claude Code restart
 - Phase 14: Detection state persists to ~/.config/viberipped/detection-state.json using atomic write-rename
 - Phase 14: Graceful fallback to v1.0 token heuristic when cost field unavailable
+- Phase 14: Detection state path derived from config path dirname for automatic tracking
+- Phase 14: Pre-seed detection state in tests for predictable delta validation
 
 ### Pending Todos
 
@@ -94,15 +96,14 @@ None.
 
 ### Blockers/Concerns
 
-- Detection improvement (Phase 14) depends on undocumented Claude Code statusline JSON structure - live testing required
-- Interactive prompts (Phase 12-13): TTY detection implemented and verified in Phase 12
+None - all v1.1 features complete, live tested, and verified.
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 14 (Detection Improvement) - Plan 1 complete
-Resume: `/gsd:execute-plan 14-02` to continue Phase 14
+Stopped at: Phase 14 (Detection Improvement) - All plans complete
+Status: v1.1 milestone complete - ready for release tagging
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-10 after completing 14-01-PLAN.md (Delta-Based Detection)*
+*Last updated: 2026-02-10 after completing 14-02-PLAN.md (Statusline Detection Integration)*
