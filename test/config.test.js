@@ -208,6 +208,11 @@ describe('Config Module - Load/Save', () => {
     const expected = {
       ...validConfig,
       environment: "anywhere",
+      detection: {
+        sensitivity: "normal",
+        durationThreshold: null,
+        fallbackOnError: true
+      },
       schemaVersion: "1.0"
     };
     assert.deepStrictEqual(result, expected);
