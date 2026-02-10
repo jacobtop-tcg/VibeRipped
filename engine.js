@@ -160,6 +160,9 @@ function trigger(pool = null, options = {}) {
     const content = fs.readFileSync(statePath, 'utf8');
     state = JSON.parse(content);
 
+    // Initialize recentCategories for v1.0 state backward compatibility
+    state.recentCategories = state.recentCategories || [];
+
     // Detect pool change (rotation pool changed, not config)
     if (state.poolHash !== currentPoolHash) {
       console.error('Pool changed, resetting index');
