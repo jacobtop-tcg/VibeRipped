@@ -1,6 +1,6 @@
 {
   "name": "viberipped",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Deterministic micro-exercise rotation engine for Claude Code",
   "main": "engine.js",
   "type": "commonjs",
@@ -22,13 +22,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/USERNAME/viberipped.git"
+    "url": "https://github.com/jacobtop-tcg/viberipped.git"
   },
-  "homepage": "https://github.com/USERNAME/viberipped",
+  "homepage": "https://github.com/jacobtop-tcg/viberipped",
   "bugs": {
-    "url": "https://github.com/USERNAME/viberipped/issues"
+    "url": "https://github.com/jacobtop-tcg/viberipped/issues"
   },
-  "author": "USERNAME",
+  "author": "Jacob",
   "engines": {
     "node": ">=18.0.0"
   },

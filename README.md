@@ -4,249 +4,262 @@
 [![license](https://img.shields.io/npm/l/viberipped.svg)](LICENSE)
 [![Node.js](https://img.shields.io/node/v/viberipped.svg)](https://nodejs.org)
 
-Deterministic micro-exercise rotation engine for Claude Code. Converts model thinking time into movement.
+**Turn AI thinking time into exercise.** VibeRipped is a micro-exercise engine for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that detects when the model is processing and tells you what to do while you wait.
 
-## Features
+```
+💪 Pushups x15
+```
 
-- Sequential rotation through equipment-aware exercise pool
-- Adaptive difficulty scaling based on API latency duration
-- User-controlled difficulty multiplier (harder/softer)
-- Claude Code statusline integration with processing detection
-- GSD workflow coexistence via bash orchestrator
-- Equipment-configurable pool (kettlebell, dumbbells, pull-up bar, parallettes, bodyweight)
-- Zero-friction: one command per prompt, no decisions required
+No decisions. No apps. Just the next exercise, right in your terminal.
 
-## Installation
+## Install
 
 ```bash
 npm install -g viberipped
 ```
 
-Requires Node.js >= 18.
+Requires Node.js 18+.
 
-## Quick Start
+## Get Started
 
-Get VibeRipped running in three steps:
-
-**Step 1: Configure equipment**
+### 1. Run setup
 
 ```bash
-viberipped config --kettlebell --dumbbells
+viberipped setup
 ```
 
-This generates an exercise pool based on your available equipment. Omit flags for bodyweight-only mode.
+The interactive wizard walks you through equipment selection, environment, and difficulty.
 
-**Step 2: Test it works**
+### 2. Test it
 
 ```bash
 viberipped test
 ```
 
-You should see the next exercise that would be displayed (e.g., "Pushups x15").
+You should see something like `Pushups x15` — your next exercise in the rotation.
 
-**Step 3: Add to Claude Code**
+### 3. Add to Claude Code
 
-Configure VibeRipped as a statusline provider in your Claude Code settings. See the [Claude Code Integration](#claude-code-integration) section below for complete setup instructions.
-
-## Claude Code Integration
-
-VibeRipped integrates with Claude Code via a statusline provider script that detects when the model is actively processing and displays the next exercise.
-
-### Statusline Provider Setup
-
-Add the following to your Claude Code `settings.json`:
+Add VibeRipped as a statusline provider in your Claude Code settings (`~/.claude/settings.json`):
 
 ```json
 {
   "statuslineProviders": [
     {
       "name": "VibeRipped",
-      "path": "/path/to/statusline.js",
+      "path": "/path/to/viberipped/statusline.js",
       "enabled": true
     }
   ]
 }
 ```
 
-The `statusline.js` script is installed globally with the npm package. Find it at:
+Find the installed path:
 
 ```bash
-npm root -g
-# Then: <npm-root>/viberipped/statusline.js
+echo "$(npm root -g)/viberipped/statusline.js"
 ```
 
-Or use the local path if you cloned the repo:
+That's it. Every time Claude thinks, you move.
+
+## Features
+
+- **26 exercises** across 5 equipment categories (bodyweight, kettlebell, dumbbells, pull-up bar, parallettes)
+- **Adaptive difficulty** — reps scale with API response time and your chosen multiplier
+- **Smart detection** — delta-based processing detection with configurable sensitivity
+- **Sequential rotation** — predictable order, no randomness, no repeated muscle groups back-to-back
+- **Environment filtering** — tag exercises for home, office, coworking, or anywhere
+- **Zero decisions** — one exercise per prompt, just do it and get back to work
+- **Zero external dependencies** — runs on Node.js built-ins (plus Commander for CLI)
+
+## CLI Reference
+
+### `viberipped setup`
+
+Interactive first-time setup. Walks through equipment, environment, and difficulty.
+
+### `viberipped test`
+
+Preview the next exercise without advancing rotation.
+
+### `viberipped harder` / `viberipped softer`
+
+Adjust difficulty multiplier up or down by 0.25x. Range: 0.5x to 2.5x.
 
 ```bash
-# If installed from source
-~/path/to/viberipped/statusline.js
+viberipped harder
+# Multiplier: 1.0x -> 1.25x
 ```
 
-### GSD Coexistence
+### `viberipped config`
 
-If you use the GSD (Get Shit Done) workflow with Claude Code, VibeRipped provides a bash orchestrator to prevent conflicts between statusline providers.
+Show current configuration: equipment, environment, difficulty, and detection sensitivity.
 
-Use `statusline-orchestrator.sh` as your statusline provider instead:
+### `viberipped config set <key> <value>`
+
+Set a configuration value directly.
+
+| Key | Values | Default |
+|-----|--------|---------|
+| `multiplier` | `0.5` to `2.5` (in 0.25 steps) | `1.0` |
+| `sensitivity` | `strict`, `normal`, `relaxed` | `normal` |
+| `environment` | any string (`home`, `office`, etc.) | `anywhere` |
+
+```bash
+viberipped config set multiplier 1.5
+viberipped config set sensitivity strict
+viberipped config set environment office
+```
+
+### `viberipped config get <key>`
+
+Get a single configuration value.
+
+### `viberipped config --kettlebell --dumbbells ...`
+
+Toggle equipment flags. Each flag has a `--no-` variant. Regenerates the exercise pool.
+
+```bash
+# Enable kettlebell and dumbbells
+viberipped config --kettlebell --dumbbells
+
+# Bodyweight only
+viberipped config --no-kettlebell --no-dumbbells --no-pull-up-bar --no-parallettes
+```
+
+### `viberipped pool list`
+
+List all exercises in your current pool with reps/duration.
+
+### `viberipped pool add <name> [reps]`
+
+Add a custom exercise. Use `--type timed --duration <seconds>` for timed exercises.
+
+```bash
+viberipped pool add "Burpees" 10
+viberipped pool add "Handstand hold" --type timed --duration 20
+```
+
+### `viberipped pool remove <name>`
+
+Remove an exercise from the pool.
+
+### `viberipped pool manage`
+
+Interactive checklist to toggle exercises on/off.
+
+## Configuration
+
+All config lives in `~/.config/viberipped/`:
+
+| File | Purpose |
+|------|---------|
+| `config.json` | Equipment flags, difficulty, environment, sensitivity |
+| `pool.json` | Exercise list (auto-generated, safe to hand-edit) |
+| `state.json` | Rotation index and cooldown tracking (managed automatically) |
+
+Run `viberipped config` to see your current settings at a glance.
+
+## How It Works
+
+1. Claude Code invokes `statusline.js` on each update, passing session data via stdin
+2. VibeRipped checks if the model is actively processing using delta-based API duration tracking
+3. If processing, it picks the next exercise from the rotation and scales reps:
+   - **Latency factor** (1.0x–1.5x): longer API calls = more reps
+   - **User multiplier** (0.5x–2.5x): your chosen difficulty
+   - **Clamped** to 5–60 reps to keep exercises quick and safe
+4. The formatted exercise displays in your Claude Code statusline
+5. A cooldown prevents the same exercise from firing again immediately
+
+Detection sensitivity controls how responsive the trigger is:
+
+| Sensitivity | Threshold | Best for |
+|-------------|-----------|----------|
+| `strict` | 50ms delta | Fast connections, maximum triggers |
+| `normal` | 100ms delta | Most users (default) |
+| `relaxed` | 500ms delta | Slow connections, fewer false triggers |
+
+## Claude Code Integration
+
+### Standalone
+
+Use `statusline.js` directly as your Claude Code statusline provider (see [Get Started](#get-started)).
+
+### With GSD Workflow
+
+If you use the [GSD](https://github.com/gsd-framework/gsd) workflow, VibeRipped ships a bash orchestrator that runs both providers side-by-side:
 
 ```json
 {
   "statuslineProviders": [
     {
       "name": "VibeRipped + GSD",
-      "path": "/path/to/statusline-orchestrator.sh",
+      "path": "/path/to/viberipped/statusline-orchestrator.sh",
       "enabled": true
     }
   ]
 }
 ```
 
-The orchestrator detects GSD context and delegates to the appropriate provider.
+The orchestrator pipes stdin to both providers and concatenates their output with a separator. If either provider has no output, the separator is omitted.
 
-### How Detection Works
+## Exercise Database
 
-The statusline provider reads JSON from stdin (provided by Claude Code) and uses a token-based heuristic to detect when the model is actively processing. When processing is detected, it triggers the exercise rotation engine and outputs a formatted exercise prompt.
+26 built-in exercises across 5 categories:
 
-When not processing, on cooldown, or on error, the provider exits silently (no output).
+### Bodyweight (always available)
 
-## CLI Reference
+| Exercise | Reps/Duration | Category |
+|----------|---------------|----------|
+| Pushups | 15 reps | push |
+| Bodyweight squats | 20 reps | legs |
+| Desk pushups | 15 reps | push |
+| Lunges | 10 reps | legs |
+| Calf raises | 25 reps | legs |
+| Tricep dips | 12 reps | core |
+| Wall sit | 30 seconds | core |
+| High knees | 30 reps | legs |
+| Glute bridges | 15 reps | legs |
+| Plank | 30 seconds | core |
 
-### `viberipped config [options]`
+### Kettlebell
 
-Configure equipment flags and generate exercise pool.
+| Exercise | Reps | Category |
+|----------|------|----------|
+| Kettlebell swings | 15 | core |
+| Goblet squats | 12 | legs |
+| Kettlebell deadlifts | 12 | legs |
+| Turkish get-up | 3 | core |
 
-**Options:**
+### Dumbbells
 
-- `--kettlebell` / `--no-kettlebell` - Enable/disable kettlebell exercises
-- `--dumbbells` / `--no-dumbbells` - Enable/disable dumbbell exercises
-- `--pull-up-bar` / `--no-pull-up-bar` - Enable/disable pull-up bar exercises
-- `--parallettes` / `--no-parallettes` - Enable/disable parallettes exercises
+| Exercise | Reps | Category |
+|----------|------|----------|
+| Dumbbell rows | 12 | pull |
+| Overhead press | 10 | push |
+| Dumbbell curls | 12 | pull |
+| Lateral raises | 12 | pull |
 
-**Example:**
+### Pull-up Bar
 
-```bash
-# Enable kettlebell and dumbbells, disable parallettes
-viberipped config --kettlebell --dumbbells --no-parallettes
+| Exercise | Reps/Duration | Category |
+|----------|---------------|----------|
+| Pull-ups | 8 reps | pull |
+| Chin-ups | 8 reps | pull |
+| Hanging knee raises | 10 reps | core |
+| Dead hangs | 20 seconds | pull |
 
-# Bodyweight-only mode (disable all equipment)
-viberipped config --no-kettlebell --no-dumbbells --no-pull-up-bar --no-parallettes
-```
+### Parallettes
 
-### `viberipped pool list`
+| Exercise | Reps/Duration | Category |
+|----------|---------------|----------|
+| L-sit | 20 seconds | core |
+| Parallette pushups | 12 reps | push |
+| Tuck planche | 10 reps | push |
+| Parallette dips | 10 reps | core |
 
-List exercises in current pool.
-
-**Example:**
-
-```bash
-viberipped pool list
-# Output:
-# Pushups x15
-# Bodyweight squats x20
-# Kettlebell swings x15
-# ...
-```
-
-### `viberipped pool add <name> <reps>`
-
-Add custom exercise to pool.
-
-**Example:**
-
-```bash
-viberipped pool add "Burpees" 10
-```
-
-Custom exercises are appended to the pool and persist across config regeneration.
-
-### `viberipped pool remove <name>`
-
-Remove exercise from pool.
-
-**Example:**
-
-```bash
-viberipped pool remove "Burpees"
-```
-
-### `viberipped test`
-
-Preview next exercise without advancing rotation.
-
-**Example:**
-
-```bash
-viberipped test
-# Output: Pushups x15
-```
-
-Use this to verify your pool configuration and difficulty settings.
-
-### `viberipped harder`
-
-Increase difficulty multiplier by one step (0.25 increment).
-
-**Example:**
-
-```bash
-viberipped harder
-# Multiplier: 1.0 -> 1.25
-```
-
-Maximum multiplier: 2.5x. Difficulty multiplier scales all rep counts in the pool.
-
-### `viberipped softer`
-
-Decrease difficulty multiplier by one step (0.25 increment).
-
-**Example:**
-
-```bash
-viberipped softer
-# Multiplier: 1.0 -> 0.75
-```
-
-Minimum multiplier: 0.5x.
-
-## Configuration
-
-VibeRipped stores all configuration and state in `~/.config/viberipped/`.
-
-**Files:**
-
-- `configuration.json` - Equipment flags and difficulty settings
-- `pool.json` - Exercise list (auto-generated from equipment config, can be manually edited)
-- `state.json` - Rotation index and cooldown tracking (updated automatically)
-
-The pool is auto-generated when you run `viberipped config`, but you can manually edit `pool.json` to customize exercises. Use `viberipped pool add` and `viberipped pool remove` for safer pool modifications.
-
-## How It Works
-
-VibeRipped uses a sequential rotation engine triggered by Claude Code statusline updates. When the model is actively processing, the statusline provider picks the next exercise from the rotation, scales reps based on API latency and user difficulty settings, and displays a compact prompt (e.g., "Pushups x15"). The rotation index advances after each exercise.
-
-Latency-based rep scaling multiplies baseline reps by a factor between 1.0x and 1.5x based on how long the model has been processing. Longer waits produce more reps (up to the 1.5x cap).
-
-User difficulty multiplier ranges from 0.5x to 2.5x and can be adjusted with `viberipped harder` and `viberipped softer`.
-
-All rep counts are clamped to [5, 60] to ensure exercises remain quick and safe.
-
-## Demo
-
-<!-- TODO: Add terminal recording (asciinema/GIF) showing setup and exercise rotation -->
-
-**Example statusline output during a Claude Code session:**
-
-```
-Pushups x15
-```
-
-After completing the exercise, the next prompt might trigger:
-
-```
-Kettlebell swings x18
-```
-
-The exercises rotate sequentially through your configured pool. No randomness, no decisions - just the next exercise in line.
+Add your own with `viberipped pool add` or edit `~/.config/viberipped/pool.json` directly.
 
 ## License
 
-MIT - see [LICENSE](LICENSE) file.
+MIT — see [LICENSE](LICENSE).
