@@ -111,8 +111,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 11-01-PLAN.md -- TDD: Category-aware getNextExercise with filter, fallback, and ring buffer
-- [ ] 11-02-PLAN.md -- Engine wiring for recentCategories persistence and integration tests
+- [x] 11-01-PLAN.md -- TDD: Category-aware getNextExercise with filter, fallback, and ring buffer
+- [x] 11-02-PLAN.md -- Engine wiring for recentCategories persistence and integration tests
 
 #### Phase 12: Interactive Setup Wizard
 **Goal**: First-time users can run guided setup with checkbox equipment selection
@@ -177,7 +177,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 8. Data Model Extensions | v1.1 | 2/2 | ✓ Complete | 2026-02-09 |
 | 9. Timed Exercises | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 10. Environment Profiles | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
-| 11. Category-Aware Rotation | v1.1 | 0/2 | Not started | - |
+| 11. Category-Aware Rotation | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 12. Interactive Setup Wizard | v1.1 | 0/? | Not started | - |
 | 13. Batch & Checklist Management | v1.1 | 0/? | Not started | - |
 | 14. Detection Improvement | v1.1 | 0/? | Not started | - |
