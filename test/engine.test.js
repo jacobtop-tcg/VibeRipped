@@ -825,6 +825,184 @@ describe('formatPrompt type-aware', () => {
   });
 });
 
+describe('Rotation Engine - Category-Aware Rotation', () => {
+  let tmpDir;
+  let statePath;
+
+  beforeEach(() => {
+    tmpDir = createTempStateDir();
+    statePath = path.join(tmpDir, 'state.json');
+  });
+
+  afterEach(() => {
+    cleanupTempStateDir(tmpDir);
+  });
+
+  test('consecutive triggers avoid same category', () => {
+    // Create pool with 4 categories
+    const pool = [
+      { name: 'Pushups', reps: 15, category: 'push' },
+      { name: 'Squats', reps: 20, category: 'legs' },
+      { name: 'Rows', reps: 12, category: 'pull' },
+      { name: 'Plank', reps: 30, category: 'core' }
+    ];
+
+    // Trigger twice
+    const first = trigger(pool, { bypassCooldown: true, statePath });
+    const second = trigger(pool, { bypassCooldown: true, statePath });
+
+    assert.strictEqual(first.type, 'exercise');
+    assert.strictEqual(second.type, 'exercise');
+
+    // Verify categories are different
+    assert.notStrictEqual(
+      first.exercise.category,
+      second.exercise.category,
+      `Expected different categories, got: ${first.exercise.category} and ${second.exercise.category}`
+    );
+  });
+
+  test('recentCategories persisted to state.json', () => {
+    // Create categorized pool
+    const pool = [
+      { name: 'Pushups', reps: 15, category: 'push' },
+      { name: 'Pull-ups', reps: 10, category: 'pull' },
+      { name: 'Squats', reps: 20, category: 'legs' }
+    ];
+
+    // Trigger once
+    const result = trigger(pool, { bypassCooldown: true, statePath });
+    assert.strictEqual(result.type, 'exercise');
+
+    // Read state.json
+    const stateContent = fs.readFileSync(statePath, 'utf8');
+    const state = JSON.parse(stateContent);
+
+    // Verify recentCategories contains the selected exercise's category
+    assert.ok(Array.isArray(state.recentCategories), 'recentCategories should be an array');
+    assert.strictEqual(state.recentCategories.length, 1);
+    assert.strictEqual(state.recentCategories[0], result.exercise.category);
+  });
+
+  test('recentCategories loaded from state across triggers', () => {
+    // Create categorized pool
+    const pool = [
+      { name: 'Pushups', reps: 15, category: 'push' },
+      { name: 'Pull-ups', reps: 10, category: 'pull' },
+      { name: 'Squats', reps: 20, category: 'legs' }
+    ];
+
+    // First trigger
+    const first = trigger(pool, { bypassCooldown: true, statePath });
+    assert.strictEqual(first.type, 'exercise');
+
+    // Read state after first trigger
+    const state1 = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    assert.strictEqual(state1.recentCategories.length, 1);
+    assert.strictEqual(state1.recentCategories[0], first.exercise.category);
+
+    // Second trigger
+    const second = trigger(pool, { bypassCooldown: true, statePath });
+    assert.strictEqual(second.type, 'exercise');
+
+    // Read state after second trigger
+    const state2 = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    assert.strictEqual(state2.recentCategories.length, 2);
+    assert.strictEqual(state2.recentCategories[0], first.exercise.category);
+    assert.strictEqual(state2.recentCategories[1], second.exercise.category);
+  });
+
+  test('recentCategories bounded to max size', () => {
+    // Create multi-category pool
+    const pool = [
+      { name: 'Pushups', reps: 15, category: 'push' },
+      { name: 'Pull-ups', reps: 10, category: 'pull' },
+      { name: 'Squats', reps: 20, category: 'legs' },
+      { name: 'Plank', reps: 30, category: 'core' }
+    ];
+
+    // Trigger 5 times
+    for (let i = 0; i < 5; i++) {
+      trigger(pool, { bypassCooldown: true, statePath });
+    }
+
+    // Read state
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+
+    // Verify recentCategories length never exceeds MAX_RECENT_CATEGORIES (2)
+    assert.ok(
+      state.recentCategories.length <= 2,
+      `Expected recentCategories.length <= 2, got ${state.recentCategories.length}`
+    );
+  });
+
+  test('single-category pool falls back gracefully', () => {
+    // Create pool with only "push" exercises
+    const pool = [
+      { name: 'Pushups', reps: 15, category: 'push' },
+      { name: 'Diamond pushups', reps: 12, category: 'push' },
+      { name: 'Wide pushups', reps: 18, category: 'push' }
+    ];
+
+    // Trigger twice - should not crash
+    const first = trigger(pool, { bypassCooldown: true, statePath });
+    const second = trigger(pool, { bypassCooldown: true, statePath });
+
+    assert.strictEqual(first.type, 'exercise');
+    assert.strictEqual(second.type, 'exercise');
+
+    // Both should have same category (fallback to full pool)
+    assert.strictEqual(first.exercise.category, 'push');
+    assert.strictEqual(second.exercise.category, 'push');
+  });
+
+  test('v1.0 pool without categories works unchanged', () => {
+    // Create v1.0 pool (no category fields)
+    const v1Pool = [
+      { name: 'Pushups', reps: 15 },
+      { name: 'Squats', reps: 20 },
+      { name: 'Pull-ups', reps: 10 }
+    ];
+
+    // Trigger through entire pool
+    const results = [];
+    for (let i = 0; i < v1Pool.length; i++) {
+      const result = trigger(v1Pool, { bypassCooldown: true, statePath });
+      results.push(result.exercise.name);
+    }
+
+    // Verify sequential rotation works (same order as pool)
+    assert.strictEqual(results[0], 'Pushups');
+    assert.strictEqual(results[1], 'Squats');
+    assert.strictEqual(results[2], 'Pull-ups');
+
+    // Verify no crashes, all exercises returned
+    assert.strictEqual(results.length, 3);
+  });
+
+  test('null category exercises always appear in rotation', () => {
+    // Create pool with mix of categorized and null-category exercises
+    const pool = [
+      { name: 'Pushups', reps: 15, category: 'push' },
+      { name: 'Stretching', reps: 10, category: null },
+      { name: 'Squats', reps: 20, category: 'legs' }
+    ];
+
+    // Trigger multiple times
+    const exercisesSeen = new Set();
+    for (let i = 0; i < 10; i++) {
+      const result = trigger(pool, { bypassCooldown: true, statePath });
+      exercisesSeen.add(result.exercise.name);
+    }
+
+    // Verify null-category exercise appears (never filtered out)
+    assert.ok(
+      exercisesSeen.has('Stretching'),
+      'Null-category exercise should appear in rotation'
+    );
+  });
+});
+
 describe('Rotation Engine - Environment Filtering', () => {
   let tmpDir;
   let statePath;
