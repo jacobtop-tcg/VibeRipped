@@ -6,24 +6,24 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction — so the user moves by default instead of browsing by default.
 
-**Current focus:** v1.1 Polish & Intelligence - Phase 10 (Environment Profiles)
+**Current focus:** v1.1 Polish & Intelligence - Phase 11 (Category-Aware Rotation)
 
 ## Current Position
 
 Milestone: v1.1 Polish & Intelligence
-Phase: 10 of 14 (Environment Profiles)
-Plan: 2 of 2 in phase
-Status: Phase complete
-Last activity: 2026-02-10 - Completed 10-02-PLAN.md
+Phase: 11 of 14 (Category-Aware Rotation)
+Plan: 1 of 2 in phase
+Status: In progress
+Last activity: 2026-02-10 - Completed 11-01-PLAN.md
 
-Progress: [████████████████████░░░░] 83% (20/24 estimated plans)
+Progress: [█████████████████████░░░] 88% (21/24 estimated plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: 2.6 min
-- Total execution time: 0.87 hours
+- Total execution time: 0.92 hours
 
 **By Phase:**
 
@@ -39,9 +39,10 @@ Progress: [████████████████████░░░
 | 08-data-model-extensions | 2/2 | 8 min | 4 min |
 | 09-timed-exercises | 2/2 | 7 min | 3.5 min |
 | 10-environment-profiles | 2/2 | 10 min | 5 min |
+| 11-category-aware-rotation | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: [4, 2, 5, 7, 3] minutes
+- Last 5 plans: [2, 5, 7, 3, 3] minutes
 - Trend: Stable
 
 ## Accumulated Context
@@ -66,6 +67,9 @@ Recent decisions:
 - Phase 10: Environment filtering is runtime-only (pool.json stores full equipment-filtered pool, environment filter applied at trigger time)
 - Phase 10: Config command refactored from single function to object with show/set/get methods for subcommand support
 - Phase 10: Environment defaults to 'anywhere' for exercises and config if not specified
+- Phase 11: Sequential search from currentIndex instead of modulo on filtered pool (maintains deterministic traversal while applying category constraint)
+- Phase 11: MAX_RECENT_CATEGORIES hardcoded as constant (value: 2) until user feedback requests configurability
+- Phase 11: Ring buffer uses array push/shift pattern (O(1) for N=2, no external library needed)
 
 ### Pending Todos
 
@@ -74,15 +78,14 @@ None.
 ### Blockers/Concerns
 
 - Detection improvement (Phase 14) depends on undocumented Claude Code statusline JSON structure - live testing required
-- Category rotation weighting (Phase 11) needs algorithm validation for edge cases (extreme pool distributions)
 - Interactive prompts (Phases 12-13) must detect TTY mode to avoid breaking statusline stdin pipe
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 10 (Environment Profiles) - PHASE COMPLETE
-Resume: `/gsd:execute-phase 11` (begin Phase 11: Category Rotation)
+Stopped at: Phase 11 (Category-Aware Rotation) Plan 1 - COMPLETE
+Resume: `/gsd:execute-phase 11` (continue with 11-02-PLAN.md)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-10 after completing Phase 10 Plan 2 (Environment CLI Commands)*
+*Last updated: 2026-02-10 after completing Phase 11 Plan 1 (Category-Aware Rotation)*
