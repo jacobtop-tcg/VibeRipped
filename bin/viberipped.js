@@ -40,7 +40,7 @@ configCmd
 
 configCmd
   .command('set <key> <value>')
-  .description('Set configuration value (e.g., environment)')
+  .description('Set configuration value (environment, multiplier, sensitivity)')
   .action((key, value) => {
     const configHandler = require(path.join(__dirname, '../lib/cli/commands/config.js'));
     configHandler.set(key, value);

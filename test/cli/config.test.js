@@ -341,4 +341,259 @@ describe('config command', () => {
     assert.match(stdout, /Configuration updated/);
     assert.match(stdout, /kettlebell/);
   });
+
+  // --- config show displays all settings ---
+
+  test('config show displays difficulty and sensitivity defaults', async () => {
+    const { code, stdout } = await runCLI(['config']);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /Difficulty:\s+1\.0x/);
+    assert.match(stdout, /Sensitivity:\s+normal/);
+  });
+
+  test('config show displays non-default difficulty and sensitivity', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
+
+    // Set multiplier
+    await new Promise((resolve) => {
+      const child = spawn('node', [binPath, 'config', 'set', 'multiplier', '1.75'], { env });
+      child.on('close', resolve);
+    });
+
+    // Set sensitivity
+    await new Promise((resolve) => {
+      const child = spawn('node', [binPath, 'config', 'set', 'sensitivity', 'strict'], { env });
+      child.on('close', resolve);
+    });
+
+    // Show config
+    const child = spawn('node', [binPath, 'config'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.match(stdout, /Difficulty:\s+1\.75x/);
+        assert.match(stdout, /Sensitivity:\s+strict/);
+
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  // --- config set/get multiplier ---
+
+  test('config set multiplier 1.5 persists to file', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
+
+    const child = spawn('node', [binPath, 'config', 'set', 'multiplier', '1.5'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.match(stdout, /Difficulty set to: 1\.5x/);
+
+        const configPath = path.join(tempHome, '.config', 'viberipped', 'configuration.json');
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        assert.strictEqual(config.difficulty.multiplier, 1.5);
+
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config set multiplier rejects invalid value', async () => {
+    const { code, stderr } = await runCLI(['config', 'set', 'multiplier', '3.0']);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /Invalid multiplier/);
+  });
+
+  test('config set multiplier rejects non-numeric value', async () => {
+    const { code, stderr } = await runCLI(['config', 'set', 'multiplier', 'hard']);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /Invalid multiplier/);
+  });
+
+  test('config get multiplier returns current value', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
+
+    // Set multiplier
+    await new Promise((resolve) => {
+      const child = spawn('node', [binPath, 'config', 'set', 'multiplier', '2.0'], { env });
+      child.on('close', resolve);
+    });
+
+    // Get multiplier
+    const child = spawn('node', [binPath, 'config', 'get', 'multiplier'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.strictEqual(stdout.trim(), '2');
+
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config get multiplier returns default when unset', async () => {
+    const { code, stdout } = await runCLI(['config', 'get', 'multiplier']);
+
+    assert.strictEqual(code, 0);
+    assert.strictEqual(stdout.trim(), '1');
+  });
+
+  // --- config set/get sensitivity ---
+
+  test('config set sensitivity strict persists to file', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
+
+    const child = spawn('node', [binPath, 'config', 'set', 'sensitivity', 'strict'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.match(stdout, /Detection sensitivity set to: strict/);
+
+        const configPath = path.join(tempHome, '.config', 'viberipped', 'configuration.json');
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        assert.strictEqual(config.detection.sensitivity, 'strict');
+
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config set sensitivity rejects invalid value', async () => {
+    const { code, stderr } = await runCLI(['config', 'set', 'sensitivity', 'turbo']);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /Invalid sensitivity/);
+  });
+
+  test('config get sensitivity returns current value', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
+
+    // Set sensitivity
+    await new Promise((resolve) => {
+      const child = spawn('node', [binPath, 'config', 'set', 'sensitivity', 'relaxed'], { env });
+      child.on('close', resolve);
+    });
+
+    // Get sensitivity
+    const child = spawn('node', [binPath, 'config', 'get', 'sensitivity'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.strictEqual(stdout.trim(), 'relaxed');
+
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config get sensitivity returns default when unset', async () => {
+    const { code, stdout } = await runCLI(['config', 'get', 'sensitivity']);
+
+    assert.strictEqual(code, 0);
+    assert.strictEqual(stdout.trim(), 'normal');
+  });
+
+  // --- error message lists all valid keys ---
+
+  test('config set unknown key error lists all settable keys', async () => {
+    const { code, stderr } = await runCLI(['config', 'set', 'badkey', 'val']);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /environment/);
+    assert.match(stderr, /multiplier/);
+    assert.match(stderr, /sensitivity/);
+  });
+
+  test('config get unknown key error lists all gettable keys', async () => {
+    const { code, stderr } = await runCLI(['config', 'get', 'badkey']);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /environment/);
+    assert.match(stderr, /multiplier/);
+    assert.match(stderr, /sensitivity/);
+  });
 });

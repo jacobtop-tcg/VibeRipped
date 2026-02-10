@@ -11,7 +11,7 @@ Show current VibeRipped configuration and let the user change settings conversat
 
 1. **Show current config**:
    ```bash
-   viberipped config show
+   viberipped config
    ```
 
 2. **Ask what to change** — use AskUserQuestion:
@@ -25,26 +25,31 @@ Show current VibeRipped configuration and let the user change settings conversat
 
    **Difficulty:**
    ```bash
-   viberipped harder          # +0.25x
-   viberipped softer          # -0.25x
-   viberipped config set multiplier <value>   # exact value (0.5-2.5)
+   viberipped harder                           # +0.25x step
+   viberipped softer                           # -0.25x step
+   viberipped config set multiplier <value>    # exact value (0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5)
    ```
 
    **Environment:**
    ```bash
-   viberipped config set environment <value>
+   viberipped config set environment <value>   # home, office, coworking, anywhere, or custom
    ```
 
    **Detection sensitivity:**
    ```bash
-   viberipped config set detection.sensitivity <value>
+   viberipped config set sensitivity <value>   # strict (50ms), normal (100ms), relaxed (500ms)
    ```
 
-   **Equipment:** Read current config, toggle the equipment flag, write config back using the Write tool, then verify with `viberipped config show`.
+   **Equipment:**
+   ```bash
+   viberipped config --kettlebell              # enable
+   viberipped config --no-kettlebell           # disable
+   # same for --dumbbells, --pull-up-bar, --parallettes
+   ```
 
 4. **Verify** — show updated config after changes:
    ```bash
-   viberipped config show
+   viberipped config
    ```
 
 5. **Loop** — ask if they want to change anything else.
