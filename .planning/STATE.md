@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 Milestone: v1.1 Polish & Intelligence
 Phase: 11 of 14 (Category-Aware Rotation)
-Plan: 1 of 2 in phase
-Status: In progress
-Last activity: 2026-02-10 - Completed 11-01-PLAN.md
+Plan: 2 of 2 in phase
+Status: Phase complete
+Last activity: 2026-02-10 - Completed 11-02-PLAN.md
 
-Progress: [█████████████████████░░░] 88% (21/24 estimated plans)
+Progress: [██████████████████████░░] 92% (22/24 estimated plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: 2.6 min
-- Total execution time: 0.92 hours
+- Total plans completed: 22
+- Average duration: 2.5 min
+- Total execution time: 0.97 hours
 
 **By Phase:**
 
@@ -39,10 +39,10 @@ Progress: [█████████████████████░░
 | 08-data-model-extensions | 2/2 | 8 min | 4 min |
 | 09-timed-exercises | 2/2 | 7 min | 3.5 min |
 | 10-environment-profiles | 2/2 | 10 min | 5 min |
-| 11-category-aware-rotation | 1/2 | 3 min | 3 min |
+| 11-category-aware-rotation | 2/2 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: [2, 5, 7, 3, 3] minutes
+- Last 5 plans: [5, 7, 3, 3, 2] minutes
 - Trend: Stable
 
 ## Accumulated Context
@@ -70,6 +70,7 @@ Recent decisions:
 - Phase 11: Sequential search from currentIndex instead of modulo on filtered pool (maintains deterministic traversal while applying category constraint)
 - Phase 11: MAX_RECENT_CATEGORIES hardcoded as constant (value: 2) until user feedback requests configurability
 - Phase 11: Ring buffer uses array push/shift pattern (O(1) for N=2, no external library needed)
+- Phase 11: Double initialization for recentCategories (engine.js state load + rotation.js before use) ensures v1.0 backward compatibility
 
 ### Pending Todos
 
@@ -83,9 +84,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 11 (Category-Aware Rotation) Plan 1 - COMPLETE
-Resume: `/gsd:execute-phase 11` (continue with 11-02-PLAN.md)
+Stopped at: Phase 11 (Category-Aware Rotation) - PHASE COMPLETE
+Resume: `/gsd:execute-phase 12` (begin Phase 12: User Feedback Collection)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-10 after completing Phase 11 Plan 1 (Category-Aware Rotation)*
+*Last updated: 2026-02-10 after completing Phase 11 (Category-Aware Rotation)*
