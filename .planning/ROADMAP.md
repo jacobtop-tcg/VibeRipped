@@ -80,8 +80,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md -- TDD: Type-aware formatExercise display, duration validation, formatPrompt
-- [ ] 09-02-PLAN.md -- Statusline pipeline wiring and CLI pool add/list for timed exercises
+- [x] 09-01-PLAN.md -- TDD: Type-aware formatExercise display, duration validation, formatPrompt
+- [x] 09-02-PLAN.md -- Statusline pipeline wiring and CLI pool add/list for timed exercises
 
 #### Phase 10: Environment Profiles
 **Goal**: Users can filter exercises by context appropriateness using environment profiles
@@ -173,7 +173,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 6. Adaptive Difficulty | v1.0 | 2/2 | ✓ Complete | 2026-02-09 |
 | 7. Distribution | v1.1 | 2/2 | ✓ Complete | 2026-02-09 |
 | 8. Data Model Extensions | v1.1 | 2/2 | ✓ Complete | 2026-02-09 |
-| 9. Timed Exercises | v1.1 | 0/? | Not started | - |
+| 9. Timed Exercises | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 10. Environment Profiles | v1.1 | 0/? | Not started | - |
 | 11. Category-Aware Rotation | v1.1 | 0/? | Not started | - |
 | 12. Interactive Setup Wizard | v1.1 | 0/? | Not started | - |

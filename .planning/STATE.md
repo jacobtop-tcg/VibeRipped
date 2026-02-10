@@ -77,7 +77,7 @@ None.
 
 Last session: 2026-02-10
 Stopped at: Phase 9 (Timed Exercises) - Phase complete
-Resume: `/gsd:execute-phase 10-enhanced-bodyweight-pool` (start Phase 10)
+Resume: `/gsd:plan-phase 10`
 
 ---
 *State initialized: 2026-02-08*
