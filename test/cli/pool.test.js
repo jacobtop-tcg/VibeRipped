@@ -281,4 +281,123 @@ describe('pool command', () => {
 
     cleanup(tempHome);
   });
+
+  test('adds timed exercise with --type timed', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool
+    const testPool = [
+      { name: "Pushups", reps: 15, type: "reps", equipment: [] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stdout } = await runCLI(['pool', 'add', 'Plank', '30', '--type', 'timed'], tempHome);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /Added "Plank" 30s to pool/);
+    assert.ok(!stdout.includes('x30'), 'Should not contain x30 for timed exercise');
+
+    // Verify pool.json contains type field
+    const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+    const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+    const plank = pool.find(ex => ex.name === 'Plank');
+    assert.strictEqual(plank.type, 'timed');
+    assert.strictEqual(plank.reps, 30);
+
+    cleanup(tempHome);
+  });
+
+  test('adds timed exercise with --type timed --duration', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool
+    const testPool = [
+      { name: "Pushups", reps: 15, type: "reps", equipment: [] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stdout } = await runCLI(['pool', 'add', 'Plank', '30', '--type', 'timed', '--duration', '45'], tempHome);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /Added "Plank" 45s to pool/);
+
+    // Verify pool.json contains duration field
+    const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+    const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+    const plank = pool.find(ex => ex.name === 'Plank');
+    assert.strictEqual(plank.type, 'timed');
+    assert.strictEqual(plank.reps, 30);
+    assert.strictEqual(plank.duration, 45);
+
+    cleanup(tempHome);
+  });
+
+  test('adds rep exercise with default type', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool
+    const testPool = [
+      { name: "Pushups", reps: 15, type: "reps", equipment: [] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stdout } = await runCLI(['pool', 'add', 'Squats', '20'], tempHome);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /Added "Squats" x20 to pool/);
+
+    // Verify pool.json contains type field
+    const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+    const pool = JSON.parse(fs.readFileSync(poolPath, 'utf8'));
+    const squats = pool.find(ex => ex.name === 'Squats');
+    assert.strictEqual(squats.type, 'reps');
+    assert.strictEqual(squats.reps, 20);
+
+    cleanup(tempHome);
+  });
+
+  test('rejects invalid type', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool
+    const testPool = [
+      { name: "Pushups", reps: 15, equipment: [] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stderr } = await runCLI(['pool', 'add', 'Test', '30', '--type', 'invalid'], tempHome);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /Invalid type/);
+
+    cleanup(tempHome);
+  });
+
+  test('pool list shows timed exercises with "s" suffix', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool with mixed types
+    const testPool = [
+      { name: "Pushups", reps: 15, type: "reps", equipment: [] },
+      { name: "Plank", reps: 30, type: "timed", duration: 30, equipment: [] },
+      { name: "Wall sit", reps: 45, type: "timed", equipment: [] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stdout } = await runCLI(['pool', 'list'], tempHome);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /1\. Pushups x15 \[bodyweight\]/);
+    assert.match(stdout, /2\. Plank 30s \[bodyweight\]/);
+    assert.match(stdout, /3\. Wall sit 45s \[bodyweight\]/);
+    assert.ok(!stdout.includes('x30'), 'Should not contain x30 for timed exercises');
+    assert.ok(!stdout.includes('x45'), 'Should not contain x45 for timed exercises');
+
+    cleanup(tempHome);
+  });
 });

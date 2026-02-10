@@ -51,9 +51,11 @@ poolCmd
 poolCmd
   .command('add <name> <reps>')
   .description('Add exercise to pool')
-  .action((name, reps) => {
+  .option('--type <type>', 'Exercise type: reps or timed', 'reps')
+  .option('--duration <seconds>', 'Duration in seconds (for timed exercises)')
+  .action((name, reps, options) => {
     const poolHandler = require(path.join(__dirname, '../lib/cli/commands/pool.js'));
-    poolHandler.add(name, reps);
+    poolHandler.add(name, reps, options);
   });
 
 poolCmd
