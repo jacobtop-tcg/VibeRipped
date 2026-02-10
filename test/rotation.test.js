@@ -120,7 +120,8 @@ describe('Rotation Module - Category-Aware Selection', () => {
     const pool = [
       { name: "Pushups", reps: 15, category: "push" },
       { name: "Pull-ups", reps: 8, category: "pull" },
-      { name: "Squats", reps: 20, category: "legs" }
+      { name: "Squats", reps: 20, category: "legs" },
+      { name: "Plank", reps: 30, category: "core" }
     ];
 
     const state = {
@@ -128,17 +129,16 @@ describe('Rotation Module - Category-Aware Selection', () => {
       recentCategories: []
     };
 
-    // Manually set index to guarantee order
-    state.currentIndex = 0;
-    getNextExercise(state, pool); // push
+    // Rotate through multiple exercises naturally (let index advance)
+    const first = getNextExercise(state, pool); // push
     assert.deepStrictEqual(state.recentCategories, ["push"]);
 
-    state.currentIndex = 1;
-    getNextExercise(state, pool); // pull
+    const second = getNextExercise(state, pool); // Should skip push, get pull
+    assert.strictEqual(second.exercise.category, "pull");
     assert.deepStrictEqual(state.recentCategories, ["push", "pull"]);
 
-    state.currentIndex = 2;
-    getNextExercise(state, pool); // legs
+    const third = getNextExercise(state, pool); // Should skip push and pull, get legs
+    assert.strictEqual(third.exercise.category, "legs");
     // Should shift off "push" and keep ["pull", "legs"]
     assert.deepStrictEqual(state.recentCategories, ["pull", "legs"], "Should shift oldest category when exceeding MAX_RECENT_CATEGORIES");
   });
