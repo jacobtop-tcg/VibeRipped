@@ -87,6 +87,14 @@ poolCmd
     poolHandler.remove(name);
   });
 
+poolCmd
+  .command('manage')
+  .description('Interactive checklist to toggle exercises on/off')
+  .action(async () => {
+    const poolHandler = require(path.join(__dirname, '../lib/cli/commands/pool.js'));
+    await poolHandler.manage();
+  });
+
 program.addCommand(poolCmd);
 
 // Test command - dry-run preview
