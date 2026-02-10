@@ -6,24 +6,24 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction — so the user moves by default instead of browsing by default.
 
-**Current focus:** v1.1 Polish & Intelligence - Phase 13 (Batch Checklist Management)
+**Current focus:** v1.1 Polish & Intelligence - Phase 14 (Detection Improvement)
 
 ## Current Position
 
 Milestone: v1.1 Polish & Intelligence
-Phase: 13 of 14 (Batch Checklist Management)
-Plan: 2 of 2 in phase
-Status: Phase complete
-Last activity: 2026-02-10 - Completed 13-02-PLAN.md
+Phase: 14 of 14 (Detection Improvement)
+Plan: 1 of 2 in phase
+Status: In progress
+Last activity: 2026-02-10 - Completed 14-01-PLAN.md
 
-Progress: [█████████████████████████] 100% (26/26 estimated plans)
+Progress: [█████████████████████████░] 96% (27/28 estimated plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
-- Average duration: 2.5 min
-- Total execution time: 1.15 hours
+- Total plans completed: 27
+- Average duration: 2.6 min
+- Total execution time: 1.20 hours
 
 **By Phase:**
 
@@ -42,9 +42,10 @@ Progress: [███████████████████████
 | 11-category-aware-rotation | 2/2 | 5 min | 2.5 min |
 | 12-interactive-setup-wizard | 2/2 | 5 min | 2.5 min |
 | 13-batch-checklist-management | 2/2 | 6 min | 3 min |
+| 14-detection-improvement | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: [2, 2, 3, 4, 2] minutes
+- Last 5 plans: [2, 3, 4, 2, 3] minutes
 - Trend: Stable
 
 ## Accumulated Context
@@ -81,6 +82,11 @@ Recent decisions:
 - Phase 13: Batch add always uses type='reps' and environments=['anywhere'] defaults (no option support for simplicity)
 - Phase 13: manage() uses process.exitCode (not process.exit) to allow proper cleanup of readline/raw mode
 - Phase 13: Checklist shows all exercises checked by default (toggle off to remove)
+- Phase 14: Sensitivity thresholds: strict=50ms, normal=100ms, relaxed=500ms (research-based)
+- Phase 14: Custom durationThreshold overrides sensitivity preset for fine-tuning
+- Phase 14: Session tracking via sessionId prevents false positives on Claude Code restart
+- Phase 14: Detection state persists to ~/.config/viberipped/detection-state.json using atomic write-rename
+- Phase 14: Graceful fallback to v1.0 token heuristic when cost field unavailable
 
 ### Pending Todos
 
@@ -94,9 +100,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 13 (Batch Checklist Management) - Complete
-Resume: `/gsd:execute-plan 14-01` to start Phase 14 (Detection Improvement)
+Stopped at: Phase 14 (Detection Improvement) - Plan 1 complete
+Resume: `/gsd:execute-plan 14-02` to continue Phase 14
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-10 after completing 13-02-PLAN.md (Interactive Manage)*
+*Last updated: 2026-02-10 after completing 14-01-PLAN.md (Delta-Based Detection)*
