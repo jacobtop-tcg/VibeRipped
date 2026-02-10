@@ -163,7 +163,182 @@ describe('config command', () => {
     const { code, stdout } = await runCLI(['config', '--help']);
 
     assert.strictEqual(code, 0);
-    assert.match(stdout, /equipment/i);
+    assert.match(stdout, /Show or manage configuration/);
     assert.match(stdout, /kettlebell/i);
+  });
+
+  test('config set environment office sets environment in configuration', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+
+    // Set environment
+    const child = spawn('node', [binPath, 'config', 'set', 'environment', 'office'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.match(stdout, /Environment set to: office/);
+
+        // Verify configuration file contains environment
+        const configPath = path.join(tempHome, '.config', 'viberipped', 'configuration.json');
+        const configContent = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(configContent);
+        assert.strictEqual(config.environment, 'office');
+
+        // Cleanup
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config get environment reads current environment', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+
+    // Set environment first
+    await new Promise((resolve) => {
+      const child = spawn('node', [binPath, 'config', 'set', 'environment', 'home'], { env });
+      child.on('close', resolve);
+    });
+
+    // Get environment
+    const child = spawn('node', [binPath, 'config', 'get', 'environment'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.match(stdout, /home/);
+
+        // Cleanup
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config set environment office then get returns office', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+
+    // Set environment
+    await new Promise((resolve) => {
+      const child = spawn('node', [binPath, 'config', 'set', 'environment', 'office'], { env });
+      child.on('close', resolve);
+    });
+
+    // Get environment
+    const child = spawn('node', [binPath, 'config', 'get', 'environment'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        const trimmed = stdout.trim();
+        assert.strictEqual(trimmed, 'office');
+
+        // Cleanup
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config set unknown-key fails', async () => {
+    const { code, stderr } = await runCLI(['config', 'set', 'unknown-key', 'value']);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /Unknown config key/);
+  });
+
+  test('config get unknown-key fails', async () => {
+    const { code, stderr } = await runCLI(['config', 'get', 'unknown-key']);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /Unknown config key/);
+  });
+
+  test('config show displays environment', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    const env = {
+      ...process.env,
+      HOME: tempHome,
+      XDG_CONFIG_HOME: path.join(tempHome, '.config')
+    };
+
+    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+
+    // Set environment
+    await new Promise((resolve) => {
+      const child = spawn('node', [binPath, 'config', 'set', 'environment', 'gym'], { env });
+      child.on('close', resolve);
+    });
+
+    // Show config
+    const child = spawn('node', [binPath, 'config'], { env });
+
+    let stdout = '';
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    await new Promise((resolve) => {
+      child.on('close', (code) => {
+        assert.strictEqual(code, 0);
+        assert.match(stdout, /Environment:\s+gym/);
+
+        // Cleanup
+        fs.rmSync(tempHome, { recursive: true, force: true });
+        resolve();
+      });
+    });
+  });
+
+  test('config --kettlebell still works', async () => {
+    const { code, stdout } = await runCLI(['config', '--kettlebell']);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /Configuration updated/);
+    assert.match(stdout, /kettlebell/);
   });
 });

@@ -18,10 +18,17 @@ program
   .description('VibeRipped CLI - Deterministic micro-exercise rotation')
   .version(packageJson.version);
 
-// Config command - equipment configuration
-program
-  .command('config')
-  .description('Configure equipment flags and generate pool')
+// Config command - equipment configuration and environment management
+const configCmd = program.command('config')
+  .description('Show or manage configuration')
+  .action((options) => {
+    // No subcommand = show mode (existing behavior)
+    const configHandler = require(path.join(__dirname, '../lib/cli/commands/config.js'));
+    configHandler.show(options);
+  });
+
+// Keep existing equipment flags on the base config command for backward compat
+configCmd
   .option('--kettlebell', 'Enable kettlebell exercises')
   .option('--no-kettlebell', 'Disable kettlebell exercises')
   .option('--dumbbells', 'Enable dumbbell exercises')
@@ -29,10 +36,22 @@ program
   .option('--pull-up-bar', 'Enable pull-up bar exercises')
   .option('--no-pull-up-bar', 'Disable pull-up bar exercises')
   .option('--parallettes', 'Enable parallettes exercises')
-  .option('--no-parallettes', 'Disable parallettes exercises')
-  .action((options) => {
+  .option('--no-parallettes', 'Disable parallettes exercises');
+
+configCmd
+  .command('set <key> <value>')
+  .description('Set configuration value (e.g., environment)')
+  .action((key, value) => {
     const configHandler = require(path.join(__dirname, '../lib/cli/commands/config.js'));
-    configHandler(options);
+    configHandler.set(key, value);
+  });
+
+configCmd
+  .command('get <key>')
+  .description('Get configuration value')
+  .action((key) => {
+    const configHandler = require(path.join(__dirname, '../lib/cli/commands/config.js'));
+    configHandler.get(key);
   });
 
 // Pool command group - exercise pool management
