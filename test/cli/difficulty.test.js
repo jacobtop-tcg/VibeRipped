@@ -1,7 +1,7 @@
 /**
  * CLI Difficulty Commands Tests
  *
- * Tests for `vibripped harder` and `vibripped softer` commands.
+ * Tests for `viberipped harder` and `viberipped softer` commands.
  * Uses isolated HOME directories to prevent config pollution.
  */
 
@@ -48,10 +48,10 @@ function cleanupTempHomeDir(tmpHome) {
 }
 
 /**
- * Executes vibripped CLI command with isolated HOME
+ * Executes viberipped CLI command with isolated HOME
  */
 function execVibripped(args, tmpHome) {
-  const cliPath = path.join(__dirname, '../../bin/vibripped.js');
+  const cliPath = path.join(__dirname, '../../bin/viberipped.js');
   const env = { ...process.env, HOME: tmpHome };
 
   try {
@@ -93,7 +93,7 @@ describe('CLI - harder command', () => {
     cleanupTempHomeDir(tmpHome);
   });
 
-  test('vibripped harder from default (1.0x) changes config to 1.25x', () => {
+  test('viberipped harder from default (1.0x) changes config to 1.25x', () => {
     const result = execVibripped(['harder'], tmpHome);
 
     assert.strictEqual(result.exitCode, 0, 'Command should exit with 0');
@@ -105,7 +105,7 @@ describe('CLI - harder command', () => {
     assert.strictEqual(config.difficulty.multiplier, 1.25, 'Config should have 1.25x multiplier');
   });
 
-  test('vibripped harder repeated from 1.0x to 1.25x to 1.5x', () => {
+  test('viberipped harder repeated from 1.0x to 1.25x to 1.5x', () => {
     // First harder: 1.0 -> 1.25
     const first = execVibripped(['harder'], tmpHome);
     assert.strictEqual(first.exitCode, 0);
@@ -121,7 +121,7 @@ describe('CLI - harder command', () => {
     assert.strictEqual(config.difficulty.multiplier, 1.5);
   });
 
-  test('vibripped harder at max (2.5x) outputs "Already at maximum" message', () => {
+  test('viberipped harder at max (2.5x) outputs "Already at maximum" message', () => {
     // Manually set config to max
     const configDir = path.join(tmpHome, '.config', 'viberipped');
     fs.mkdirSync(configDir, { recursive: true, mode: 0o700 });
@@ -153,7 +153,7 @@ describe('CLI - softer command', () => {
     cleanupTempHomeDir(tmpHome);
   });
 
-  test('vibripped softer from default (1.0x) changes config to 0.75x', () => {
+  test('viberipped softer from default (1.0x) changes config to 0.75x', () => {
     const result = execVibripped(['softer'], tmpHome);
 
     assert.strictEqual(result.exitCode, 0, 'Command should exit with 0');
@@ -165,7 +165,7 @@ describe('CLI - softer command', () => {
     assert.strictEqual(config.difficulty.multiplier, 0.75, 'Config should have 0.75x multiplier');
   });
 
-  test('vibripped softer at min (0.5x) outputs "Already at minimum" message', () => {
+  test('viberipped softer at min (0.5x) outputs "Already at minimum" message', () => {
     // Manually set config to min
     const configDir = path.join(tmpHome, '.config', 'viberipped');
     fs.mkdirSync(configDir, { recursive: true, mode: 0o700 });
@@ -185,7 +185,7 @@ describe('CLI - softer command', () => {
     assert.strictEqual(config.difficulty.multiplier, 0.5, 'Should remain at 0.5x');
   });
 
-  test('vibripped harder then softer returns to original', () => {
+  test('viberipped harder then softer returns to original', () => {
     // Start with default (1.0x)
     // Run harder: 1.0 -> 1.25
     const harder = execVibripped(['harder'], tmpHome);

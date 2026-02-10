@@ -5,7 +5,7 @@
   "main": "engine.js",
   "type": "commonjs",
   "bin": {
-    "vibripped": "./bin/vibripped.js"
+    "viberipped": "./bin/viberipped.js"
   },
   "scripts": {
     "test": "node --test",

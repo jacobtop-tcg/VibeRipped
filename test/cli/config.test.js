@@ -1,7 +1,7 @@
 /**
  * Integration tests for config command
  *
- * Tests the vibripped config CLI command end-to-end using child_process.
+ * Tests the viberipped config CLI command end-to-end using child_process.
  */
 
 const { describe, test } = require('node:test');
@@ -29,7 +29,7 @@ function runCLI(args) {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
     const child = spawn('node', [binPath, ...args], { env });
 
     let stdout = '';
@@ -87,7 +87,7 @@ describe('config command', () => {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
 
     // First call: set kettlebell
     await new Promise((resolve) => {
@@ -125,7 +125,7 @@ describe('config command', () => {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
 
     // Set kettlebell
     await new Promise((resolve) => {
@@ -177,7 +177,7 @@ describe('config command', () => {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
 
     // Set environment
     const child = spawn('node', [binPath, 'config', 'set', 'environment', 'office'], { env });
@@ -215,7 +215,7 @@ describe('config command', () => {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
 
     // Set environment first
     await new Promise((resolve) => {
@@ -253,7 +253,7 @@ describe('config command', () => {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
 
     // Set environment
     await new Promise((resolve) => {
@@ -306,7 +306,7 @@ describe('config command', () => {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
 
     // Set environment
     await new Promise((resolve) => {

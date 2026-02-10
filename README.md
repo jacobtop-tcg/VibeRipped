@@ -31,7 +31,7 @@ Get VibeRipped running in three steps:
 **Step 1: Configure equipment**
 
 ```bash
-vibripped config --kettlebell --dumbbells
+viberipped config --kettlebell --dumbbells
 ```
 
 This generates an exercise pool based on your available equipment. Omit flags for bodyweight-only mode.
@@ -39,7 +39,7 @@ This generates an exercise pool based on your available equipment. Omit flags fo
 **Step 2: Test it works**
 
 ```bash
-vibripped test
+viberipped test
 ```
 
 You should see the next exercise that would be displayed (e.g., "Pushups x15").
@@ -110,7 +110,7 @@ When not processing, on cooldown, or on error, the provider exits silently (no o
 
 ## CLI Reference
 
-### `vibripped config [options]`
+### `viberipped config [options]`
 
 Configure equipment flags and generate exercise pool.
 
@@ -125,20 +125,20 @@ Configure equipment flags and generate exercise pool.
 
 ```bash
 # Enable kettlebell and dumbbells, disable parallettes
-vibripped config --kettlebell --dumbbells --no-parallettes
+viberipped config --kettlebell --dumbbells --no-parallettes
 
 # Bodyweight-only mode (disable all equipment)
-vibripped config --no-kettlebell --no-dumbbells --no-pull-up-bar --no-parallettes
+viberipped config --no-kettlebell --no-dumbbells --no-pull-up-bar --no-parallettes
 ```
 
-### `vibripped pool list`
+### `viberipped pool list`
 
 List exercises in current pool.
 
 **Example:**
 
 ```bash
-vibripped pool list
+viberipped pool list
 # Output:
 # Pushups x15
 # Bodyweight squats x20
@@ -146,62 +146,62 @@ vibripped pool list
 # ...
 ```
 
-### `vibripped pool add <name> <reps>`
+### `viberipped pool add <name> <reps>`
 
 Add custom exercise to pool.
 
 **Example:**
 
 ```bash
-vibripped pool add "Burpees" 10
+viberipped pool add "Burpees" 10
 ```
 
 Custom exercises are appended to the pool and persist across config regeneration.
 
-### `vibripped pool remove <name>`
+### `viberipped pool remove <name>`
 
 Remove exercise from pool.
 
 **Example:**
 
 ```bash
-vibripped pool remove "Burpees"
+viberipped pool remove "Burpees"
 ```
 
-### `vibripped test`
+### `viberipped test`
 
 Preview next exercise without advancing rotation.
 
 **Example:**
 
 ```bash
-vibripped test
+viberipped test
 # Output: Pushups x15
 ```
 
 Use this to verify your pool configuration and difficulty settings.
 
-### `vibripped harder`
+### `viberipped harder`
 
 Increase difficulty multiplier by one step (0.25 increment).
 
 **Example:**
 
 ```bash
-vibripped harder
+viberipped harder
 # Multiplier: 1.0 -> 1.25
 ```
 
 Maximum multiplier: 2.5x. Difficulty multiplier scales all rep counts in the pool.
 
-### `vibripped softer`
+### `viberipped softer`
 
 Decrease difficulty multiplier by one step (0.25 increment).
 
 **Example:**
 
 ```bash
-vibripped softer
+viberipped softer
 # Multiplier: 1.0 -> 0.75
 ```
 
@@ -217,7 +217,7 @@ VibeRipped stores all configuration and state in `~/.config/viberipped/`.
 - `pool.json` - Exercise list (auto-generated from equipment config, can be manually edited)
 - `state.json` - Rotation index and cooldown tracking (updated automatically)
 
-The pool is auto-generated when you run `vibripped config`, but you can manually edit `pool.json` to customize exercises. Use `vibripped pool add` and `vibripped pool remove` for safer pool modifications.
+The pool is auto-generated when you run `viberipped config`, but you can manually edit `pool.json` to customize exercises. Use `viberipped pool add` and `viberipped pool remove` for safer pool modifications.
 
 ## How It Works
 
@@ -225,7 +225,7 @@ VibeRipped uses a sequential rotation engine triggered by Claude Code statusline
 
 Latency-based rep scaling multiplies baseline reps by a factor between 1.0x and 1.5x based on how long the model has been processing. Longer waits produce more reps (up to the 1.5x cap).
 
-User difficulty multiplier ranges from 0.5x to 2.5x and can be adjusted with `vibripped harder` and `vibripped softer`.
+User difficulty multiplier ranges from 0.5x to 2.5x and can be adjusted with `viberipped harder` and `viberipped softer`.
 
 All rep counts are clamped to [5, 60] to ensure exercises remain quick and safe.
 

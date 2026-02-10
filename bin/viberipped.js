@@ -14,7 +14,7 @@ const packageJson = require(path.join(__dirname, '../package.json'));
 const program = new Command();
 
 program
-  .name('vibripped')
+  .name('viberipped')
   .description('VibeRipped CLI - Deterministic micro-exercise rotation')
   .version(packageJson.version);
 

@@ -1,7 +1,7 @@
 /**
  * Integration tests for pool command
  *
- * Tests the vibripped pool CLI commands end-to-end using child_process.
+ * Tests the viberipped pool CLI commands end-to-end using child_process.
  */
 
 const { describe, test } = require('node:test');
@@ -32,7 +32,7 @@ function runCLI(args, tempHome) {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
     const child = spawn('node', [binPath, ...args], { env });
 
     let stdout = '';

@@ -1,7 +1,7 @@
 /**
  * Integration tests for setup command
  *
- * Tests the vibripped setup CLI command end-to-end using child_process.
+ * Tests the viberipped setup CLI command end-to-end using child_process.
  */
 
 const { describe, test } = require('node:test');
@@ -30,7 +30,7 @@ function runCLI(args, options = {}) {
       XDG_CONFIG_HOME: path.join(tempHome, '.config')
     };
 
-    const binPath = path.join(__dirname, '../../bin/vibripped.js');
+    const binPath = path.join(__dirname, '../../bin/viberipped.js');
     const child = spawn('node', [binPath, ...args], {
       env,
       ...options
@@ -83,7 +83,7 @@ describe('setup command', () => {
 
     assert.strictEqual(code, 1);
     assert.match(stderr, /requires an interactive terminal/);
-    assert.match(stderr, /vibripped config/);
+    assert.match(stderr, /viberipped config/);
   });
 
   test('setup fails gracefully when stdout is not TTY', async () => {

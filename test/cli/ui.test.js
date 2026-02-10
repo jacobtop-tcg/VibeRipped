@@ -38,7 +38,7 @@ process.exit(ok ? 0 : 1);
 
     assert.strictEqual(code, 1, 'Exit code should be 1');
     assert.match(stderr, /requires an interactive terminal/, 'Should mention TTY requirement');
-    assert.match(stderr, /vibripped config/, 'Should suggest alternative commands');
+    assert.match(stderr, /viberipped config/, 'Should suggest alternative commands');
   });
 
   test('requireTTY module loads without error', () => {
