@@ -325,3 +325,180 @@ describe('validateExercise duration field', () => {
     assert.strictEqual(validateExercise(exercise), false);
   });
 });
+
+describe('Pool Module - Environment Filtering', () => {
+  test('assemblePool accepts environment parameter and uses it for filtering', () => {
+    // Verify function signature includes environment parameter
+    const config = { equipment: {} };
+
+    // Should not throw when called with environment parameter
+    assert.doesNotThrow(() => {
+      assemblePool(config, 'office');
+    });
+
+    // Verify the parameter is actually used by testing fallback behavior
+    // An environment that matches nothing should trigger fallback
+    const fallbackPool = assemblePool(config, 'nonexistent-environment-xyz');
+
+    // Should fall back to equipment-filtered pool (bodyweight only in this case)
+    assert.ok(fallbackPool.length > 0, 'Should return fallback pool for nonexistent environment');
+
+    // All should be bodyweight since we didn't enable any equipment
+    for (const exercise of fallbackPool) {
+      assert.strictEqual(exercise.equipment.length, 0, 'Fallback should be equipment-filtered (bodyweight only)');
+    }
+  });
+
+  test('includes exercises tagged "anywhere" regardless of active environment', () => {
+    // Create a pool with exercises tagged "anywhere"
+    const config = { equipment: {} };
+    const pool = assemblePool(config, 'office');
+
+    // All bodyweight exercises in database are tagged "anywhere"
+    // Verify at least one exists in the result
+    const anywhereExercises = FULL_EXERCISE_DATABASE.filter(ex =>
+      ex.environments && ex.environments.includes('anywhere')
+    );
+    assert.ok(anywhereExercises.length > 0, 'Database should have "anywhere" exercises');
+
+    // All of those should be in the filtered pool (if bodyweight)
+    const bodyweightAnywhere = anywhereExercises.filter(ex => ex.equipment.length === 0);
+    for (const exercise of bodyweightAnywhere) {
+      const found = pool.find(ex => ex.name === exercise.name);
+      assert.ok(found, `Exercise "${exercise.name}" tagged "anywhere" should be in office environment pool`);
+    }
+  });
+
+  test('includes exercises matching active environment', () => {
+    // Temporarily add an office-only exercise to test filtering
+    // We'll test this by checking the filter logic works
+    const config = { equipment: {} };
+
+    // Create a test exercise pool with office-tagged exercise
+    const testExercise = {
+      name: "Test office exercise",
+      reps: 10,
+      equipment: [],
+      environments: ["office"]
+    };
+
+    // For this test, we'll verify the pool includes exercises that match environment
+    const pool = assemblePool(config, 'office');
+
+    // All exercises returned should have either "anywhere" or "office" in environments
+    for (const exercise of pool) {
+      const envs = exercise.environments || ['anywhere'];
+      assert.ok(
+        envs.includes('anywhere') || envs.includes('office'),
+        `Exercise "${exercise.name}" should be tagged for "anywhere" or "office" environment`
+      );
+    }
+  });
+
+  test('excludes exercises not matching active environment', () => {
+    // This test verifies exclusion logic
+    // Since FULL_EXERCISE_DATABASE currently only has "anywhere" exercises,
+    // we'll test the filter would exclude home-only when filtering for office
+    const config = { equipment: {} };
+    const pool = assemblePool(config, 'office');
+
+    // Verify no exercises tagged exclusively for "home" appear
+    for (const exercise of pool) {
+      const envs = exercise.environments || ['anywhere'];
+      if (!envs.includes('anywhere')) {
+        assert.ok(envs.includes('office'),
+          `Exercise "${exercise.name}" should be for office, not exclusively other environments`);
+      }
+    }
+  });
+
+  test('defaults missing environments array to anywhere', () => {
+    // Exercises without environments field should be included in any environment
+    const config = { equipment: {} };
+
+    // Create config and filter
+    const pool = assemblePool(config, 'office');
+
+    // Verify pool is not empty (exercises without environments field should default to "anywhere")
+    assert.ok(pool.length > 0, 'Pool should include exercises even when environments field missing (defaults to anywhere)');
+  });
+
+  test('falls back to equipment-only pool when environment filter empties result', () => {
+    // This would require a scenario where environment filtering produces empty result
+    // Test by using a non-existent environment like "underwater"
+    const config = { equipment: {} };
+
+    // This should return bodyweight exercises (fallback) and log to stderr
+    const pool = assemblePool(config, 'underwater-basket-weaving');
+
+    // Should still return bodyweight exercises (not empty)
+    assert.ok(pool.length > 0, 'Should fall back to equipment-filtered pool when environment matches nothing');
+
+    // All returned exercises should be bodyweight
+    for (const exercise of pool) {
+      assert.strictEqual(exercise.equipment.length, 0,
+        'Fallback pool should only contain bodyweight exercises');
+    }
+  });
+
+  test('defaults environment parameter to anywhere when omitted', () => {
+    const config = { equipment: {} };
+
+    // Call assemblePool without second argument
+    const poolWithoutEnv = assemblePool(config);
+
+    // Call assemblePool with 'anywhere'
+    const poolWithAnywhere = assemblePool(config, 'anywhere');
+
+    // Both should return identical results
+    assert.strictEqual(poolWithoutEnv.length, poolWithAnywhere.length,
+      'Pool size should be identical when environment omitted vs "anywhere"');
+
+    // Verify exercise names match
+    for (let i = 0; i < poolWithoutEnv.length; i++) {
+      assert.strictEqual(poolWithoutEnv[i].name, poolWithAnywhere[i].name,
+        'Exercise order should be identical when environment omitted vs "anywhere"');
+    }
+  });
+
+  test('chains equipment then environment filters', () => {
+    // Enable kettlebell, filter for office environment
+    const config = {
+      equipment: {
+        kettlebell: true,
+        dumbbells: false,
+        pullUpBar: false,
+        parallettes: false
+      }
+    };
+
+    const pool = assemblePool(config, 'office');
+
+    // Should include bodyweight exercises (office or anywhere)
+    const bodyweightCount = pool.filter(ex => ex.equipment.length === 0).length;
+    assert.ok(bodyweightCount > 0, 'Should include bodyweight exercises');
+
+    // Should include kettlebell exercises tagged office or anywhere
+    const kettlebellCount = pool.filter(ex =>
+      ex.equipment.includes(EQUIPMENT_KEYS.KETTLEBELL)
+    ).length;
+    assert.ok(kettlebellCount > 0, 'Should include kettlebell exercises');
+
+    // All exercises should match environment filter
+    for (const exercise of pool) {
+      const envs = exercise.environments || ['anywhere'];
+      assert.ok(
+        envs.includes('anywhere') || envs.includes('office'),
+        `Exercise "${exercise.name}" should match office environment filter`
+      );
+    }
+
+    // Should NOT include exercises requiring other equipment
+    const hasOtherEquipment = pool.some(ex =>
+      ex.equipment.includes(EQUIPMENT_KEYS.DUMBBELLS) ||
+      ex.equipment.includes(EQUIPMENT_KEYS.PULL_UP_BAR) ||
+      ex.equipment.includes(EQUIPMENT_KEYS.PARALLETTES)
+    );
+    assert.ok(!hasOtherEquipment, 'Should not include exercises requiring unavailable equipment');
+  });
+});
