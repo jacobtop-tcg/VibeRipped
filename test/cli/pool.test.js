@@ -400,4 +400,97 @@ describe('pool command', () => {
 
     cleanup(tempHome);
   });
+
+  test('pool add with --environments tags exercise correctly', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool
+    const testPool = [
+      { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stdout } = await runCLI(['pool', 'add', 'Desk stretches', '30', '--environments', 'home,office'], tempHome);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /Added "Desk stretches" x30 to pool/);
+
+    // Load pool and verify environments field
+    const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+    const poolContent = fs.readFileSync(poolPath, 'utf8');
+    const pool = JSON.parse(poolContent);
+
+    const exercise = pool.find(ex => ex.name === 'Desk stretches');
+    assert.ok(exercise, 'Exercise should exist in pool');
+    assert.deepStrictEqual(exercise.environments, ['home', 'office']);
+
+    cleanup(tempHome);
+  });
+
+  test('pool add without --environments defaults to anywhere', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool
+    const testPool = [
+      { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stdout } = await runCLI(['pool', 'add', 'Squats', '20'], tempHome);
+
+    assert.strictEqual(code, 0);
+
+    // Load pool and verify environments field
+    const poolPath = path.join(tempHome, '.config', 'viberipped', 'pool.json');
+    const poolContent = fs.readFileSync(poolPath, 'utf8');
+    const pool = JSON.parse(poolContent);
+
+    const exercise = pool.find(ex => ex.name === 'Squats');
+    assert.ok(exercise, 'Exercise should exist in pool');
+    assert.deepStrictEqual(exercise.environments, ['anywhere']);
+
+    cleanup(tempHome);
+  });
+
+  test('pool list shows environment tags', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool with environment tags
+    const testPool = [
+      { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] },
+      { name: "Desk stretches", reps: 30, equipment: [], environments: ["home", "office"] },
+      { name: "Outdoor sprints", reps: 10, equipment: [], environments: ["outdoor"] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stdout } = await runCLI(['pool', 'list'], tempHome);
+
+    assert.strictEqual(code, 0);
+    assert.match(stdout, /1\. Pushups x15 \[bodyweight\] \(anywhere\)/);
+    assert.match(stdout, /2\. Desk stretches x30 \[bodyweight\] \(home, office\)/);
+    assert.match(stdout, /3\. Outdoor sprints x10 \[bodyweight\] \(outdoor\)/);
+
+    cleanup(tempHome);
+  });
+
+  test('pool add with empty --environments fails', async () => {
+    const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    fs.mkdirSync(tempHome, { recursive: true });
+
+    // Create pool
+    const testPool = [
+      { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] }
+    ];
+    createPool(tempHome, testPool);
+
+    const { code, stderr } = await runCLI(['pool', 'add', 'Test', '10', '--environments', ''], tempHome);
+
+    assert.strictEqual(code, 1);
+    assert.match(stderr, /Invalid environments/);
+
+    cleanup(tempHome);
+  });
 });

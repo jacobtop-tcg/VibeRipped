@@ -72,6 +72,7 @@ poolCmd
   .description('Add exercise to pool')
   .option('--type <type>', 'Exercise type: reps or timed', 'reps')
   .option('--duration <seconds>', 'Duration in seconds (for timed exercises)')
+  .option('--environments <envs>', 'Comma-separated environments (e.g., "home,office")')
   .action((name, reps, options) => {
     const poolHandler = require(path.join(__dirname, '../lib/cli/commands/pool.js'));
     poolHandler.add(name, reps, options);
