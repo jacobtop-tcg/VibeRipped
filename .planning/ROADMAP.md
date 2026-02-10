@@ -125,10 +125,11 @@ Plans:
   4. Wizard suggests default exercises based on selected equipment
   5. Wizard creates configuration file and pool with sensible defaults
   6. Setup command respects existing configs (asks before overwriting)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 12-01-PLAN.md -- Reusable UI primitives: checkbox widget, confirm prompt, TTY guard
+- [ ] 12-02-PLAN.md -- Setup wizard command, CLI registration, integration tests, manual verification
 
 #### Phase 13: Batch & Checklist Management
 **Goal**: Users can batch-add exercises and manage pool via interactive checklist
@@ -178,7 +179,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 9. Timed Exercises | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 10. Environment Profiles | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 11. Category-Aware Rotation | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
-| 12. Interactive Setup Wizard | v1.1 | 0/? | Not started | - |
+| 12. Interactive Setup Wizard | v1.1 | 0/2 | Not started | - |
 | 13. Batch & Checklist Management | v1.1 | 0/? | Not started | - |
 | 14. Detection Improvement | v1.1 | 0/? | Not started | - |
 
