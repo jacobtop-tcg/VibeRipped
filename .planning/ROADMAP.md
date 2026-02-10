@@ -144,8 +144,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 13-01-PLAN.md -- Batch-add parsing with atomic validation, duplicate detection, integration tests
-- [ ] 13-02-PLAN.md -- Interactive checklist manage command with CheckboxPrompt, TTY guard, tests
+- [x] 13-01-PLAN.md -- Batch-add parsing with atomic validation, duplicate detection, integration tests
+- [x] 13-02-PLAN.md -- Interactive checklist manage command with CheckboxPrompt, TTY guard, tests
 
 #### Phase 14: Detection Improvement
 **Goal**: Statusline triggers exercise prompts only during actual API calls, not all statusline updates
@@ -181,7 +181,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 10. Environment Profiles | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 11. Category-Aware Rotation | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 12. Interactive Setup Wizard | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
-| 13. Batch & Checklist Management | v1.1 | 0/2 | Not started | - |
+| 13. Batch & Checklist Management | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 14. Detection Improvement | v1.1 | 0/? | Not started | - |
 
 ---
