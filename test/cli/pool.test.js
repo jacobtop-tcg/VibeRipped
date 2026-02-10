@@ -717,4 +717,33 @@ describe('pool command', () => {
       cleanup(tempHome);
     });
   });
+
+  describe('pool manage', () => {
+    test('manage command fails gracefully in non-TTY context', async () => {
+      const tempHome = path.join(os.tmpdir(), `viberipped-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      fs.mkdirSync(tempHome, { recursive: true });
+
+      // Create pool with exercises
+      const testPool = [
+        { name: "Pushups", reps: 15, equipment: [], environments: ["anywhere"] },
+        { name: "Squats", reps: 20, equipment: [], environments: ["anywhere"] }
+      ];
+      createPool(tempHome, testPool);
+
+      const { code, stderr } = await runCLI(['pool', 'manage'], tempHome);
+
+      assert.strictEqual(code, 1);
+      assert.match(stderr, /requires an interactive terminal/);
+
+      cleanup(tempHome);
+    });
+
+    test('manage command shows in help output', async () => {
+      const { code, stdout } = await runCLI(['pool', '--help']);
+
+      assert.strictEqual(code, 0);
+      assert.match(stdout, /manage/);
+      assert.match(stdout, /Interactive checklist/);
+    });
+  });
 });
