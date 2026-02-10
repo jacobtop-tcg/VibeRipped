@@ -18,10 +18,12 @@
  * All diagnostic output goes to stderr only.
  */
 
+const path = require('path');
 const { parseStdin } = require('./lib/statusline/stdin');
 const { isProcessing } = require('./lib/statusline/detection');
 const { formatExercise } = require('./lib/statusline/format');
 const { trigger } = require('./engine');
+const { loadConfig, getConfigPath } = require('./lib/config');
 
 // Main execution wrapped in top-level try/catch
 (function main() {
@@ -47,8 +49,14 @@ const { trigger } = require('./engine');
           process.exit(0);
         }
 
+        // Load config for detection settings
+        const config = loadConfig(getConfigPath());
+
+        // Construct detection state path from config directory
+        const detectionStatePath = path.join(path.dirname(getConfigPath()), 'detection-state.json');
+
         // Check if Claude Code is processing
-        if (!isProcessing(data)) {
+        if (!isProcessing(data, { config, statePath: detectionStatePath })) {
           // Not processing - exit silently (no output)
           process.exit(0);
         }
