@@ -129,6 +129,37 @@ describe('formatExercise', () => {
   });
 });
 
+describe('formatExercise type-aware display', () => {
+  test('formatExercise with type="timed" renders "30s" not "x30"', () => {
+    const result = formatExercise('Plank', 30, 'timed');
+    assert.match(result, /Plank 30s/);
+    assert.ok(!result.includes('x30'));
+  });
+
+  test('formatExercise with type="reps" renders "x15" (backward compat)', () => {
+    const result = formatExercise('Pushups', 15, 'reps');
+    assert.match(result, /Pushups x15/);
+  });
+
+  test('formatExercise without type defaults to "reps" format', () => {
+    const result = formatExercise('Pushups', 15);
+    assert.match(result, /Pushups x15/);
+  });
+
+  test('formatExercise with type="timed" and prefix option', () => {
+    const result = formatExercise('Wall sit', 30, 'timed', { prefix: '💪 ' });
+    assert.match(result, /💪 Wall sit 30s/);
+  });
+
+  test('formatExercise with type="timed" and null value returns just name', () => {
+    const result = formatExercise('Plank', null, 'timed');
+    assert.match(result, /Plank/);
+    assert.ok(!result.includes('null'));
+    assert.ok(!result.includes('x'));
+    assert.ok(!result.includes('s'));
+  });
+});
+
 // Integration tests for statusline.js entry point
 const { execSync } = require('child_process');
 const fs = require('fs');

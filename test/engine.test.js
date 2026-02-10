@@ -17,6 +17,14 @@ const { trigger } = require('../engine.js');
 const { DEFAULT_POOL, assemblePool, FULL_EXERCISE_DATABASE, computePoolHash } = require('../lib/pool.js');
 const { loadConfig, saveConfig, getConfigPath, DEFAULT_CONFIG } = require('../lib/config.js');
 
+// Import formatPrompt for testing (will be exported in GREEN phase)
+let formatPrompt;
+try {
+  formatPrompt = require('../engine.js').formatPrompt;
+} catch (e) {
+  // Will be exported in GREEN phase
+}
+
 /**
  * Creates a temporary state directory for isolated test runs
  */
@@ -790,5 +798,29 @@ describe('v1.1 Migration Integration', () => {
     // Assert backup was not modified
     const secondMtime = fs.statSync(backupPath).mtime.getTime();
     assert.strictEqual(secondMtime, firstMtime, 'Backup should not be recreated on second trigger');
+  });
+});
+
+describe('formatPrompt type-aware', () => {
+  test('formatPrompt with type="timed" renders "Plank 30s"', () => {
+    // Re-require in case it wasn't exported initially
+    const engineModule = require('../engine.js');
+    if (!engineModule.formatPrompt) {
+      throw new Error('formatPrompt not exported from engine.js');
+    }
+    const result = engineModule.formatPrompt({ name: "Plank", reps: 30, type: "timed" });
+    assert.strictEqual(result, "Plank 30s");
+  });
+
+  test('formatPrompt with type="reps" renders "Pushups x15"', () => {
+    const engineModule = require('../engine.js');
+    const result = engineModule.formatPrompt({ name: "Pushups", reps: 15, type: "reps" });
+    assert.strictEqual(result, "Pushups x15");
+  });
+
+  test('formatPrompt without type defaults to "reps" format', () => {
+    const engineModule = require('../engine.js');
+    const result = engineModule.formatPrompt({ name: "Pushups", reps: 15 });
+    assert.strictEqual(result, "Pushups x15");
   });
 });

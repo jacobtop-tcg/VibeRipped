@@ -293,3 +293,35 @@ describe('Pool Module - v1.1 Exercise Schema', () => {
     assert.deepStrictEqual(VALID_TYPES, ["reps", "timed"]);
   });
 });
+
+describe('validateExercise duration field', () => {
+  test('exercise with valid duration field passes validation', () => {
+    const exercise = { name: "Plank", reps: 30, duration: 30 };
+    assert.strictEqual(validateExercise(exercise), true);
+  });
+
+  test('exercise without duration field passes validation (backward compat)', () => {
+    const exercise = { name: "Plank", reps: 30 };
+    assert.strictEqual(validateExercise(exercise), true);
+  });
+
+  test('exercise with negative duration fails validation', () => {
+    const exercise = { name: "Plank", reps: 30, duration: -5 };
+    assert.strictEqual(validateExercise(exercise), false);
+  });
+
+  test('exercise with zero duration fails validation', () => {
+    const exercise = { name: "Plank", reps: 30, duration: 0 };
+    assert.strictEqual(validateExercise(exercise), false);
+  });
+
+  test('exercise with non-integer duration fails validation', () => {
+    const exercise = { name: "Plank", reps: 30, duration: 30.5 };
+    assert.strictEqual(validateExercise(exercise), false);
+  });
+
+  test('exercise with string duration fails validation', () => {
+    const exercise = { name: "Plank", reps: 30, duration: "30" };
+    assert.strictEqual(validateExercise(exercise), false);
+  });
+});

@@ -19,15 +19,18 @@ const { migrateConfigIfNeeded, migratePoolIfNeeded, migrateStateIfNeeded } = req
 /**
  * Formats exercise as crisp command prompt.
  *
- * Format: "{name} x{reps}"
- * Examples: "Pushups x15", "Wall sit x30"
+ * Format: "{name} x{reps}" for reps, "{name} {reps}s" for timed
+ * Examples: "Pushups x15", "Wall sit 30s"
  *
  * Zero motivational language, zero optionality, zero explanation.
  *
- * @param {{name: string, reps: number}} exercise - Exercise object
+ * @param {{name: string, reps: number, type?: string}} exercise - Exercise object
  * @returns {string} Crisp command string
  */
 function formatPrompt(exercise) {
+  if (exercise.type === 'timed') {
+    return `${exercise.name} ${exercise.reps}s`;
+  }
   return `${exercise.name} x${exercise.reps}`;
 }
 
@@ -251,5 +254,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-  trigger
+  trigger,
+  formatPrompt
 };
