@@ -5,7 +5,7 @@
   "main": "engine.js",
   "type": "commonjs",
   "bin": {
-    "viberipped": "./bin/viberipped.js"
+    "viberipped": "bin/viberipped.js"
   },
   "scripts": {
     "test": "node --test",
@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jacobtop-tcg/viberipped.git"
+    "url": "git+https://github.com/jacobtop-tcg/viberipped.git"
   },
   "homepage": "https://github.com/jacobtop-tcg/viberipped",
   "bugs": {
