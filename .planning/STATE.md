@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Every "model is thinking" moment produces exactly one unambiguous physical action — no decisions, no coaching, no friction — so the user moves by default instead of browsing by default.
 
-**Current focus:** v1.1 Polish & Intelligence - Phase 8 (Data Model Extensions)
+**Current focus:** v1.1 Polish & Intelligence - Phase 9 (Timed Exercises)
 
 ## Current Position
 
 Milestone: v1.1 Polish & Intelligence
-Phase: 8 of 14 (Data Model Extensions)
-Plan: 2 of 2 in phase
-Status: Phase complete
-Last activity: 2026-02-09 - Completed 08-02-PLAN.md
+Phase: 9 of 14 (Timed Exercises)
+Plan: 1 of 2 in phase
+Status: In progress
+Last activity: 2026-02-10 - Completed 09-01-PLAN.md
 
-Progress: [████████████████░░░░░░░░] 67% (16/24 estimated plans)
+Progress: [█████████████████░░░░░░░] 71% (17/24 estimated plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
-- Average duration: 2.5 min
+- Total plans completed: 17
+- Average duration: 2.4 min
 - Total execution time: 0.7 hours
 
 **By Phase:**
@@ -37,9 +37,10 @@ Progress: [████████████████░░░░░░░
 | 06-adaptive-difficulty | 2/2 | 6 min | 3 min |
 | 07-distribution | 2/2 | 3 min | 1.5 min |
 | 08-data-model-extensions | 2/2 | 8 min | 4 min |
+| 09-timed-exercises | 1/2 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: [3, 1.5, 1, 4, 4] minutes
+- Last 5 plans: [1.5, 1, 4, 4, 2] minutes
 - Trend: Stable
 
 ## Accumulated Context
@@ -60,6 +61,7 @@ Recent decisions:
 - Phase 8: Additive-only schema changes with optional fields for backward compat
 - Phase 8: category=null valid for uncategorized exercises (Phase 11 assigns categories)
 - Phase 8: Fire-and-forget migration in engine.js (existing recovery paths handle failures)
+- Phase 9: Type-aware formatExercise uses backward-compatible signature detection (third arg can be string or object)
 
 ### Pending Todos
 
@@ -73,10 +75,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-09
-Stopped at: Phase 8 (Data Model Extensions) - Complete
-Resume: `/gsd:plan-phase 9`
+Last session: 2026-02-10
+Stopped at: Phase 9 (Timed Exercises) - Plan 1 complete
+Resume: `/gsd:execute-phase 09-timed-exercises` (continue with 09-02-PLAN.md)
 
 ---
 *State initialized: 2026-02-08*
-*Last updated: 2026-02-09 after completing Phase 8 Plan 2 (v1.0-to-v1.1 Migration)*
+*Last updated: 2026-02-10 after completing Phase 9 Plan 1 (Type-Aware Display Formatting)*
