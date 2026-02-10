@@ -38,29 +38,11 @@ viberipped test
 
 You should see something like `Pushups x15` — your next exercise in the rotation.
 
-### 3. Add to Claude Code
+### 3. Done
 
-Add VibeRipped as a statusline provider in your Claude Code settings (`~/.claude/settings.json`):
+The installer automatically registers VibeRipped as a Claude Code statusline provider. Every time Claude thinks, you move.
 
-```json
-{
-  "statuslineProviders": [
-    {
-      "name": "VibeRipped",
-      "path": "/path/to/viberipped/statusline.js",
-      "enabled": true
-    }
-  ]
-}
-```
-
-Find the installed path:
-
-```bash
-echo "$(npm root -g)/viberipped/statusline.js"
-```
-
-That's it. Every time Claude thinks, you move.
+If you need to configure it manually, see [Claude Code Integration](#claude-code-integration).
 
 ## Features
 
@@ -181,9 +163,27 @@ Detection sensitivity controls how responsive the trigger is:
 
 ## Claude Code Integration
 
-### Standalone
+### Automatic (default)
 
-Use `statusline.js` directly as your Claude Code statusline provider (see [Get Started](#get-started)).
+`npm install -g viberipped` adds VibeRipped to `~/.claude/settings.json` automatically. Uninstalling removes it.
+
+### Manual
+
+If auto-configuration didn't run (e.g. Claude Code was installed after VibeRipped), add it yourself:
+
+```json
+{
+  "statuslineProviders": [
+    {
+      "name": "VibeRipped",
+      "path": "/path/to/viberipped/statusline.js",
+      "enabled": true
+    }
+  ]
+}
+```
+
+Find the installed path with `npm root -g` and append `/viberipped/statusline.js`.
 
 ### With GSD Workflow
 

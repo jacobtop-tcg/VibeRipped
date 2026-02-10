@@ -9,11 +9,14 @@
   },
   "scripts": {
     "test": "node --test",
+    "postinstall": "node scripts/postinstall.js",
+    "preuninstall": "node scripts/preuninstall.js",
     "prepublishOnly": "npm test"
   },
   "files": [
     "bin/",
     "lib/",
+    "scripts/",
     "engine.js",
     "statusline.js",
     "statusline-orchestrator.sh",
