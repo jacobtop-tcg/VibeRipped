@@ -95,8 +95,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- TDD: Environment-based pool filtering in assemblePool and engine runtime wiring
-- [ ] 10-02-PLAN.md -- CLI config set/get subcommands and pool add --environments tagging
+- [x] 10-01-PLAN.md -- TDD: Environment-based pool filtering in assemblePool and engine runtime wiring
+- [x] 10-02-PLAN.md -- CLI config set/get subcommands and pool add --environments tagging
 
 #### Phase 11: Category-Aware Rotation
 **Goal**: Rotation engine avoids consecutive same-muscle-group exercises using weighted category selection
@@ -175,7 +175,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 7. Distribution | v1.1 | 2/2 | ✓ Complete | 2026-02-09 |
 | 8. Data Model Extensions | v1.1 | 2/2 | ✓ Complete | 2026-02-09 |
 | 9. Timed Exercises | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
-| 10. Environment Profiles | v1.1 | 0/2 | Not started | - |
+| 10. Environment Profiles | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 11. Category-Aware Rotation | v1.1 | 0/? | Not started | - |
 | 12. Interactive Setup Wizard | v1.1 | 0/? | Not started | - |
 | 13. Batch & Checklist Management | v1.1 | 0/? | Not started | - |

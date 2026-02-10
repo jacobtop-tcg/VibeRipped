@@ -21,7 +21,7 @@ Requirements for v1.1 Polish & Intelligence release. Each maps to roadmap phases
 
 - [ ] **INTL-01**: Each exercise has a muscle group category (push, pull, legs, core) and rotation avoids consecutive same-category exercises
 - [x] **INTL-02**: Exercise pool supports timed exercises (planks, wall sits) displayed as "Plank 30s" alongside rep-based exercises
-- [ ] **INTL-03**: User can define environment profiles (home, office, coworking) that filter exercises by context appropriateness
+- [x] **INTL-03**: User can define environment profiles (home, office, coworking) that filter exercises by context appropriateness
 
 ### Interactive UX
 
@@ -71,7 +71,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DTCT-01 | Phase 14 | Pending |
 | INTL-01 | Phase 11 | Pending |
 | INTL-02 | Phase 9 | ✓ Complete |
-| INTL-03 | Phase 10 | Pending |
+| INTL-03 | Phase 10 | ✓ Complete |
 | INTR-01 | Phase 12 | Pending |
 | INTR-02 | Phase 13 | Pending |
 | INTR-03 | Phase 13 | Pending |
