@@ -277,4 +277,127 @@ describe('statusline.js integration', () => {
       cleanupTmpStateDir();
     }
   });
+
+  test('displays timed exercise as "30s" not "x30" in statusline output', () => {
+    const tmpHome = createTmpStateDir();
+
+    // Create pool with a timed exercise
+    const stateDir = path.join(tmpHome, '.config', 'viberipped');
+    fs.mkdirSync(stateDir, { recursive: true });
+
+    const pool = [
+      { name: 'Plank', reps: 30, type: 'timed', duration: 30, equipment: [] }
+    ];
+    fs.writeFileSync(path.join(stateDir, 'pool.json'), JSON.stringify(pool, null, 2));
+
+    // Create configuration.json with no equipment (empty pool, will be overridden by pool.json)
+    // The key is that configPoolHash must match what assemblePool() produces
+    const config = { equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false } };
+    fs.writeFileSync(path.join(stateDir, 'configuration.json'), JSON.stringify(config, null, 2));
+
+    // Compute configPoolHash from the default bodyweight pool (what assemblePool produces with no equipment)
+    const { assemblePool, computePoolHash } = require('../lib/pool');
+    const assembledPool = assemblePool(config);
+    const configPoolHash = computePoolHash(assembledPool);
+
+    // Create state with poolHash and configPoolHash to prevent engine from reinitializing
+    const crypto = require('crypto');
+    const poolHash = crypto.createHash('sha256').update(JSON.stringify(pool)).digest('hex');
+    const state = {
+      poolHash: poolHash,
+      configPoolHash: configPoolHash, // Must match assembled pool hash
+      currentIndex: 0,
+      lastTriggerTime: 0,
+      totalTriggered: 0
+    };
+    fs.writeFileSync(path.join(stateDir, 'state.json'), JSON.stringify(state, null, 2));
+
+    const input = JSON.stringify({
+      context_window: {
+        current_usage: {
+          input_tokens: 500,
+          cache_read_input_tokens: 0
+        }
+      }
+    });
+
+    try {
+      const result = execSync(
+        `echo '${input}' | node ${path.join(__dirname, '..', 'statusline.js')}`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' }
+        }
+      );
+
+      // Should display "30s" not "x30" for timed exercises
+      assert.match(result, /Plank 30s/);
+      assert.ok(!result.includes('x30'), 'Should not contain "x30" for timed exercise');
+      assert.match(result, /\x1b\[36m\x1b\[1m/); // cyan bold ANSI codes
+      assert.match(result, /💪 /); // prefix emoji
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
+
+  test('displays rep exercise as "x15" not "15s" in statusline output', () => {
+    const tmpHome = createTmpStateDir();
+
+    // Create pool with a rep exercise
+    const stateDir = path.join(tmpHome, '.config', 'viberipped');
+    fs.mkdirSync(stateDir, { recursive: true });
+
+    const pool = [
+      { name: 'Pushups', reps: 15, type: 'reps', equipment: [] }
+    ];
+    fs.writeFileSync(path.join(stateDir, 'pool.json'), JSON.stringify(pool, null, 2));
+
+    // Create configuration.json with no equipment (empty pool, will be overridden by pool.json)
+    const config = { equipment: { kettlebell: false, dumbbells: false, pullUpBar: false, parallettes: false } };
+    fs.writeFileSync(path.join(stateDir, 'configuration.json'), JSON.stringify(config, null, 2));
+
+    // Compute configPoolHash from the default bodyweight pool
+    const { assemblePool, computePoolHash } = require('../lib/pool');
+    const assembledPool = assemblePool(config);
+    const configPoolHash = computePoolHash(assembledPool);
+
+    // Create state with poolHash and configPoolHash to prevent engine from reinitializing
+    const crypto = require('crypto');
+    const poolHash = crypto.createHash('sha256').update(JSON.stringify(pool)).digest('hex');
+    const state = {
+      poolHash: poolHash,
+      configPoolHash: configPoolHash, // Must match assembled pool hash
+      currentIndex: 0,
+      lastTriggerTime: 0,
+      totalTriggered: 0
+    };
+    fs.writeFileSync(path.join(stateDir, 'state.json'), JSON.stringify(state, null, 2));
+
+    const input = JSON.stringify({
+      context_window: {
+        current_usage: {
+          input_tokens: 500,
+          cache_read_input_tokens: 0
+        }
+      }
+    });
+
+    try {
+      const result = execSync(
+        `echo '${input}' | node ${path.join(__dirname, '..', 'statusline.js')}`,
+        {
+          encoding: 'utf8',
+          env: { ...process.env, HOME: tmpHome, VIBERIPPED_BYPASS_COOLDOWN: '1' }
+        }
+      );
+
+      // Should display "x15" not "15s" for rep exercises
+      assert.match(result, /Pushups x15/);
+      assert.ok(!result.includes('15s'), 'Should not contain "15s" for rep exercise');
+      assert.match(result, /\x1b\[36m\x1b\[1m/); // cyan bold ANSI codes
+      assert.match(result, /💪 /); // prefix emoji
+    } finally {
+      cleanupTmpStateDir();
+    }
+  });
 });

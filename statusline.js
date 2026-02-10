@@ -64,7 +64,11 @@ const { trigger } = require('./engine');
         // Handle cooldown - keep showing last exercise so it stays visible
         if (result.type === 'cooldown') {
           if (result.lastExercise) {
-            const formatted = formatExercise(result.lastExercise.name, result.lastExercise.reps, { prefix: '💪 ' });
+            const ex = result.lastExercise;
+            const value = ex.type === 'timed'
+              ? (ex.duration ?? ex.reps)
+              : ex.reps;
+            const formatted = formatExercise(ex.name, value, ex.type || 'reps', { prefix: '💪 ' });
             process.stdout.write(formatted);
           }
           process.exit(0);
@@ -72,7 +76,11 @@ const { trigger } = require('./engine');
 
         // Handle exercise - format and output to stdout
         if (result.type === 'exercise') {
-          const formatted = formatExercise(result.exercise.name, result.exercise.reps, { prefix: '💪 ' });
+          const exercise = result.exercise;
+          const value = exercise.type === 'timed'
+            ? (exercise.duration ?? exercise.reps)
+            : exercise.reps;
+          const formatted = formatExercise(exercise.name, value, exercise.type || 'reps', { prefix: '💪 ' });
           process.stdout.write(formatted);
           process.exit(0);
         }
