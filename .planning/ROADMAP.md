@@ -160,8 +160,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 14-01-PLAN.md -- TDD: Delta-based API detection with configurable sensitivity and v1.0 fallback
-- [ ] 14-02-PLAN.md -- Statusline wiring, integration tests, and live testing verification
+- [x] 14-01-PLAN.md -- TDD: Delta-based API detection with configurable sensitivity and v1.0 fallback
+- [x] 14-02-PLAN.md -- Statusline wiring, integration tests, and live testing verification
 
 ## Progress
 
@@ -183,7 +183,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11 → 12 → 13 → 1
 | 11. Category-Aware Rotation | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 12. Interactive Setup Wizard | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 13. Batch & Checklist Management | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
-| 14. Detection Improvement | v1.1 | 0/? | Not started | - |
+| 14. Detection Improvement | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 
 ---
 *Created: 2026-02-08 for v1.0 milestone*
