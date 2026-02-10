@@ -23,3 +23,29 @@
 
 ---
 
+
+## v1.1 Polish & Intelligence (Shipped: 2026-02-10)
+
+**Phases completed:** 8 phases (7-14), 16 plans
+**Lines of code:** 9,564 JavaScript (up from 4,481)
+**Tests:** 311 passing (up from 135)
+**Timeline:** 1 day (2026-02-09 → 2026-02-10)
+
+**Delivered:** Distribution, exercise intelligence (categories, timed exercises, environment profiles), interactive UX (setup wizard, batch add, checklist management), and precise delta-based API detection.
+
+**Key accomplishments:**
+- npm distribution with global install, README with CLI reference, LICENSE and package metadata
+- Extended data model with category/type/environment fields and automatic v1.0 migration
+- Timed exercise support with duration-based display ("Plank 30s") and latency scaling
+- Environment profiles filtering exercises by context (home/office/coworking/anywhere)
+- Category-aware rotation preventing consecutive same-muscle-group exercises via ring buffer
+- Interactive setup wizard with checkbox equipment selection and TTY guard
+- Batch add and interactive checklist management for pool exercises
+- Delta-based API detection eliminating false positives from v1.0 token heuristic
+
+**Archives:**
+- `.planning/milestones/v1.1-ROADMAP.md`
+- `.planning/milestones/v1.1-REQUIREMENTS.md`
+
+---
+
