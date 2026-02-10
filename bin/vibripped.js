@@ -116,6 +116,15 @@ program
     softerHandler();
   });
 
+// Setup command - interactive first-time setup wizard
+program
+  .command('setup')
+  .description('Launch interactive setup wizard for first-time configuration')
+  .action(async () => {
+    const setupHandler = require(path.join(__dirname, '../lib/cli/commands/setup.js'));
+    await setupHandler();
+  });
+
 // Show help if no arguments
 if (process.argv.length === 2) {
   program.outputHelp();
